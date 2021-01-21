@@ -1,0 +1,12 @@
+/publish/api
+/publish/editors
+var_sk
+
+# dependencies
+/node_modules
+
+node_modules/**
+client-side/node_modules/**
+server-side/node_modules/**
+server-side/build/**
+server-side/publish/*.js
