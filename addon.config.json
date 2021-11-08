@@ -1,6 +1,6 @@
 {
   "AddonUUID": "95501678-6687-4fb3-92ab-1155f47f839e",
-  "AddonVersion": "1.0.6",
+  "AddonVersion": "1.1.1",
   "DebugPort": 4400,
   "WebappBaseUrl": "https://app.sandbox.pepperi.com",
   "DefaultEditor": "main",
@@ -24,7 +24,6 @@
         "Description": "Theme editor"
       }
     ],
-    "Dependencies": {
-    }
+    "Dependencies": {}
   }
 }

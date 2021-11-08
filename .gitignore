@@ -10,3 +10,4 @@ client-side/node_modules/**
 server-side/node_modules/**
 server-side/build/**
 server-side/publish/*.js
+publish/
