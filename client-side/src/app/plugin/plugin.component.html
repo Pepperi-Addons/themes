@@ -1,0 +1,719 @@
+<pep-page-layout>
+    <ng-container pep-top-area>
+        <pep-top-bar [title]="'Themes_Addon_Title' | translate">
+            <ng-container header-end-content>
+                <div class="menu pep-spacing-element pull-right flip">
+                    <pep-menu [items]="menuOptions"
+                        (menuItemClick)="onMenuItemClicked($event)" ></pep-menu>
+                    <input style="display: none;" #importFile type="file" id="importFile" name="importFile" accept=".json" (change)="importFromJsonFile($event.target.files)" />
+                </div>
+                <button class="mat-button pep-button strong md pep-spacing-element pull-right flip" (click)="raisePublishCommentDialog()">
+                    {{ 'Themes_Addon_Publish' | translate }}
+                </button>
+                <button class="mat-button pep-button weak md pep-spacing-element pull-right flip" (click)="resetPlugin()">
+                    {{ 'Themes_Addon_Cancel' | translate }}
+                </button>
+            </ng-container>
+        </pep-top-bar>
+    </ng-container>
+    <ng-container pep-main-area>
+        <div id="pluginBody" class="limit-max-width">
+            <mat-tab-group (selectedTabChange)="tabClick($event)">
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <span class="body-md">{{ 'Themes_Addon_Colors_Title' | translate }}</span>
+                    </ng-template>
+                    <div class="colors-header">
+                        <div class="colors-sub-title">
+                            <p class="body-md" [innerHTML]="'Themes_Addon_Colors_SubTitle' | translate"></p>
+                        </div>
+                        <div class="good-to-know">
+                            <span class="body-xs color-dimmed">
+                                {{ 'Themes_Addon_Colors_GoodToKnow' | translate }}
+                            </span>
+                            <ul class="body-sm color-dimmed">
+                                <li>{{ 'Themes_Addon_Colors_GoodToKnow1' | translate }}</li>
+                                <li>{{ 'Themes_Addon_Colors_GoodToKnow2' | translate }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="colors-content">
+                        <mat-accordion [displayMode]="'flat'" [multi]="true" class="pep-accordion">
+                            <mat-expansion-panel [expanded]="true">
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_PrimaryColor_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content primary-color-content">
+                                    <div>
+                                        <p class="primary-color-sub-title body-sm" [innerHTML]="'Themes_Addon_PrimaryColor_SubTitle' | translate"></p>
+
+                                        <div class="primary-color-component">
+                                            <div>
+                                                <pep-color
+                                                    [label]="(TRANSLATION_PREFIX_KEY + 'EditPrimaryColor_Title') | translate"
+                                                    [value]="getColor(themeObj.userPrimaryColor)"
+                                                    (valueChange)="setColor(themeObj.userPrimaryColor, $event); onValueChanged()">
+                                                </pep-color>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <ng-container *ngTemplateOutlet="
+                                                buttonsStyleByColorTemplate;
+                                                context: {
+                                                    viewTitle: 'Themes_Addon_PrimaryColor_PreviewTitle' | translate,
+                                                    colorClass: 'user-primary'
+                                                }">
+                                        </ng-container>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        <div class="flex pep-spacing-element-negative">
+                                            <span class="pep-spacing-element">{{ 'Themes_Addon_SecondaryColor_Title' | translate }}&nbsp;</span>
+                                            <mat-checkbox
+                                                type="checkbox"
+                                                class="flex pep-spacing-element md"
+                                                [checked]="themeObj?.useSecondaryColor"
+                                                (click)="onUseSecondaryColorClick($event)"
+                                            >
+                                                <span class="color-dimmed">{{ 'Themes_Addon_SecondaryColor_UseTitle' | translate }}</span>
+                                            </mat-checkbox>
+                                        </div>
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content secondary-color-content" [ngClass]="{disable: !themeObj?.useSecondaryColor}">
+                                    <div>
+                                        <p class="secondary-color-sub-title body-sm" [innerHTML]="'Themes_Addon_SecondaryColor_SubTitle' | translate"></p>
+                                        <div class="secondary-color-component">
+                                            <div>
+                                                <pep-color 
+                                                    [label]="(TRANSLATION_PREFIX_KEY + 'EditSecondaryColor_Title') | translate"
+                                                    [value]="getColor(themeObj.userSecondaryColor)"
+                                                    (valueChange)="setColor(themeObj.userSecondaryColor, $event); onValueChanged()">
+                                                </pep-color>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <ng-container *ngTemplateOutlet="
+                                                buttonsStyleByColorTemplate;
+                                                context: {
+                                                    viewTitle: 'Themes_Addon_SecondaryColor_PreviewTitle' | translate,
+                                                    colorClass: 'user-secondary'
+                                                }">
+                                        </ng-container>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_MainColor_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content main-color-content">
+                                    <div>
+                                        <p class="main-color-sub-title body-sm" [innerHTML]="'Themes_Addon_MainColor_SubTitle' | translate"></p>
+                                        <div class="main-color-component">
+                                            <div>
+                                                <pep-color 
+                                                    [label]="(TRANSLATION_PREFIX_KEY + 'EditMainColor_Title') | translate"
+                                                    [value]="getColor(themeObj.systemPrimaryColor)"
+                                                    [type]="'main'" [showAAComplient]="false"
+                                                    (valueChange)="setColor(themeObj.systemPrimaryColor, $event); onValueChanged()">
+                                                </pep-color>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <ng-container *ngTemplateOutlet="
+                                                buttonsStyleByColorTemplate;
+                                                context: {
+                                                    viewTitle: 'Themes_Addon_MainColor_PreviewTitle' | translate,
+                                                    colorClass: 'system-primary'
+                                                }">
+                                        </ng-container>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_SystemColors_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content system-color-content">
+                                    <span class="system-colors-link-title title-md">
+                                        {{ 'Themes_Addon_LinkColor_Title' | translate }}
+                                    </span>
+                                    <div class="system-colors-link-content">
+                                        <div>
+                                            <p class="system-colors-link-sub-title body-sm" [innerHTML]="'Themes_Addon_LinkColor_SubTitle' | translate"></p>
+                                            <div class="system-colors-link-component">
+                                                <div>
+                                                    <pep-color 
+                                                        [label]="(TRANSLATION_PREFIX_KEY + 'EditLinkColor_Title') | translate"
+                                                        [value]="getColor(themeObj.systemLinkColor)"
+                                                        (valueChange)="setColor(themeObj.systemLinkColor, $event); onValueChanged()">
+                                                    </pep-color>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="preview-box preview-box-button-focus">
+                                                <div class="preview-box-title">
+                                                    <span class="ellipsis color-link body-sm">
+                                                        {{ 'Themes_Addon_LinkColor_PreviewTitle' | translate }}
+                                                    </span>
+                                                </div>
+                                                <div class="preview-box-body">
+                                                    <button class="mat-button pep-button chip strong sm pep-spacing-element system-primary focused">
+                                                        <div class="ellipsis">
+                                                            {{ 'Themes_Addon_LinkColor_PreviewButton' | translate }}
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="system-colors-caution-title title-md">
+                                        {{ 'Themes_Addon_CautionColor_Title' | translate }}
+                                    </span>
+                                    <div class="system-colors-caution-content">
+                                        <div>
+                                            <p class="system-colors-caution-sub-title body-sm" [innerHTML]="'Themes_Addon_CautionColor_SubTitle' | translate"></p>
+                                            <div class="system-colors-caution-component">
+                                                <div>
+                                                    <pep-color 
+                                                        [label]="(TRANSLATION_PREFIX_KEY + 'EditCautionColor_Title') | translate"
+                                                        [value]="getColor(themeObj.systemCautionColor)"
+                                                        [type]="'caution'"
+                                                        (valueChange)="setColor(themeObj.systemCautionColor, $event); onValueChanged()">
+                                                    </pep-color>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <ng-container *ngTemplateOutlet="
+                                                    buttonsStyleByColorTemplate;
+                                                    context: {
+                                                        viewTitle: 'Themes_Addon_CautionColor_PreviewTitle' | translate,
+                                                        colorClass: 'caution'
+                                                    }">
+                                            </ng-container>
+                                        </div>
+                                    </div>
+                                    <span class="system-colors-success-title title-md">
+                                        {{ 'Themes_Addon_SuccessColor_Title' | translate }}
+                                    </span>
+                                    <div class="system-colors-success-content">
+                                        <div>
+                                            <p class="system-colors-success-sub-title body-sm" [innerHTML]="'Themes_Addon_SuccessColor_SubTitle' | translate"></p>
+                                            <div class="system-colors-success-component">
+                                                <div>
+                                                    <pep-color 
+                                                        [label]="(TRANSLATION_PREFIX_KEY + 'EditSuccessColor_Title') | translate"
+                                                        [value]="getColor(themeObj.systemSuccessColor)"
+                                                        [type]="'success'"
+                                                        (valueChange)="setColor(themeObj.systemSuccessColor, $event); onValueChanged()">
+                                                    </pep-color>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <ng-container *ngTemplateOutlet="
+                                                    buttonsStyleByColorTemplate;
+                                                    context: {
+                                                        viewTitle: 'Themes_Addon_SuccessColor_PreviewTitle' | translate,
+                                                        colorClass: 'success'
+                                                    }">
+                                            </ng-container>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
+                    </div>
+                </mat-tab>
+
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <span class="body-md">
+                            {{ 'Themes_Addon_Fonts_Title' | translate }}
+                        </span>
+                    </ng-template>
+                    <div class="fonts-header">
+                        <div class="fonts-sub-title">
+                            <p class="body-md" [innerHTML]="'Themes_Addon_Fonts_SubTitle' | translate"></p>
+                        </div>
+                    </div>
+                    <div class="fonts-content">
+                        <mat-accordion [displayMode]="'flat'" [multi]="true" class="pep-accordion">
+                            <!-- <mat-expansion-panel [expanded]="true">
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_HeadingFont_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content heading-font-content">
+                                    <p class="heading-font-sub-title body-sm" [innerHTML]="'Themes_Addon_HeadingFont_SubTitle' | translate"></p>
+                                    <div class="heading-font-component">
+                                        <pep-select 
+                                                [label]="(TRANSLATION_PREFIX_KEY + 'SelectHeadingFont_Title') | translate"
+                                                [value]="themeObj.headingFont" [options]="fontHeadingOptions" [emptyOption]="false"
+                                                (valueChange)="themeObj.headingFont = $event; onValueChanged();"></pep-select>
+                                    </div>
+                                    <ng-container *ngTemplateOutlet="fontStyleTemplate"></ng-container>
+                                </div>
+                            </mat-expansion-panel> -->
+                            <mat-expansion-panel [expanded]="true">
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_SystemFont_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content system-font-content">
+                                    <div>
+                                        <p class="system-font-sub-title body-sm" [innerHTML]="'Themes_Addon_SystemFont_SubTitle' | translate"></p>
+                                        <div class="system-font-component">
+                                            <div>
+                                                <pep-select 
+                                                [label]="(TRANSLATION_PREFIX_KEY + 'SelectSystemFont_Title') | translate"
+                                                [value]="themeObj.bodyFont" [options]="fontBodyOptions" [emptyOption]="false"
+                                                (valueChange)="themeObj.bodyFont = $event; onValueChanged();"></pep-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <ng-container *ngTemplateOutlet="fontStyleTemplate"></ng-container>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_FontSize_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content font-size-content">
+                                    <div>
+                                        <p class="font-size-sub-title body-sm" [innerHTML]="'Themes_Addon_FontSize_SubTitle' | translate"></p>
+                                        <div class="font-size-component">
+                                            <div>
+                                                <pep-select
+                                                [label]="(TRANSLATION_PREFIX_KEY + 'SelectFontSizes_Title') | translate"
+                                                [value]="themeObj.fontSizes" [options]="fontSizesOptions" [emptyOption]="false"
+                                                (valueChange)="themeObj.fontSizes = $event; onValueChanged();"></pep-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <ng-container *ngTemplateOutlet="fontStyleTemplate"></ng-container>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
+                    </div>
+                </mat-tab>
+
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <span class="body-md">
+                            {{ 'Themes_Addon_Styles_Title' | translate }}
+                        </span>
+                    </ng-template>
+                    <div class="styles-header">
+                        <div class="styles-sub-title">
+                            <p class="body-md" [innerHTML]="'Themes_Addon_Styles_SubTitle' | translate"></p>
+                        </div>
+                    </div>
+                    <div class="styles-content">
+                        <mat-accordion [displayMode]="'flat'" [multi]="true" class="pep-accordion">
+                            <mat-expansion-panel [expanded]="true">
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_Roundness_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content roundness-content">
+                                    <div>
+                                        <p class="roundness-sub-title body-sm" [innerHTML]="'Themes_Addon_Roundness_SubTitle' | translate"></p>
+                                        <div class="roundness-component">
+                                            <div>
+                                                <pep-select 
+                                                [label]="(TRANSLATION_PREFIX_KEY + 'SelectRoundness_Title') | translate"
+                                                [value]="themeObj.roundnessSizes" [options]="roundnessOptions" [emptyOption]="false"
+                                                (valueChange)="themeObj.roundnessSizes = $event; onValueChanged();"></pep-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <ng-container *ngTemplateOutlet="roundnessStyleTemplate"></ng-container>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
+                    </div>
+                </mat-tab>
+
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <span class="body-md">
+                            {{ 'Themes_Addon_Assign_Title' | translate }}
+                        </span>
+                    </ng-template>
+                    <div class="assign-header">
+                        <div class="assign-sub-title">
+                            <p class="body-md" [innerHTML]="'Themes_Addon_Assign_SubTitle' | translate"></p>
+                        </div>
+                    </div>
+                    <div class="assign-content">
+                        <mat-accordion [displayMode]="'flat'" [multi]="true" class="pep-accordion">
+                            <mat-expansion-panel [expanded]="true">
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_TopHeaderAssign_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content top-header-content">
+                                    <div>
+                                        <p class="top-header-sub-title body-sm" [innerHTML]="'Themes_Addon_TopHeaderAssign_SubTitle' | translate"></p>
+                                        <div class="top-header-component">
+                                            <div>
+                                                <pep-select 
+                                                [label]="(TRANSLATION_PREFIX_KEY + 'SelectTopHeaderColor_Title') | translate"
+                                                [value]="themeObj.topHeaderColor" [options]="colorsWithLegacyOptions" [emptyOption]="false"
+                                                (valueChange)="
+                                                    themeObj.topHeaderColor = $event;
+                                                    themeObj.useTopHeaderColorLegacy = themeObj.topHeaderColor === LEGACY_STRING;
+                                                    onValueChanged();"></pep-select>
+                                            </div>
+                                            <div>
+                                                <pep-select 
+                                                [label]="(TRANSLATION_PREFIX_KEY + 'SelectTopHeaderStyle_Title') | translate"
+                                                [value]="themeObj.topHeaderStyle" [options]="buttonStylesOptions" [emptyOption]="false"
+                                                (valueChange)="themeObj.topHeaderStyle = $event; onValueChanged();"></pep-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_WeakAssign_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content weak-button-content">
+                                    <div>
+                                        <p class="weak-button-sub-title body-sm" [innerHTML]="'Themes_Addon_WeakAssign_SubTitle' | translate"></p>
+                                        <div class="weak-button-component">
+                                            <div>
+                                                <pep-select
+                                                [label]="(TRANSLATION_PREFIX_KEY + 'SelectWeakButtonColor_Title') | translate"
+                                                [value]="themeObj.weakButtonColor" [options]="colorsOptions" [emptyOption]="false"
+                                                (valueChange)="themeObj.weakButtonColor = $event; onValueChanged();"></pep-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="preview-box">
+                                            <div class="preview-box-title">
+                                                <span class="ellipsis body-sm">
+                                                    {{ 'Themes_Addon_WeakAssign_PreviewTitle' | translate }}
+                                                </span>
+                                            </div>
+                                            <div class="preview-box-body">
+                                                <button class="mat-button pep-spacing-element pep-button regular md">
+                                                    <div class="ellipsis block">{{ 'Themes_Addon_Regular_Title' | translate }}</div>
+                                                </button>
+                                                <button class="mat-button pep-spacing-element pep-button weak md">
+                                                    <div class="ellipsis block">{{ 'Themes_Addon_Weak_Title' | translate }}</div>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_StrongAssign_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content strong-button-content">
+                                    <div>
+                                        <p class="strong-button-sub-title body-sm" [innerHTML]="'Themes_Addon_StrongAssign_SubTitle' | translate"></p>
+                                        <div class="strong-button-component">
+                                            <div>
+                                                <pep-select 
+                                                [label]="(TRANSLATION_PREFIX_KEY + 'SelectStrongButtonColor_Title') | translate"
+                                                [value]="themeObj.strongButtonColor" [options]="colorsOptions" [emptyOption]="false"
+                                                (valueChange)="themeObj.strongButtonColor = $event; onValueChanged();"></pep-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <ng-container *ngTemplateOutlet="
+                                                buttonStyleByColorTemplate;
+                                                context: {
+                                                    viewTitle: 'Themes_Addon_StrongAssign_PreviewTitle' | translate,
+                                                    buttonType: 'strong',
+                                                    buttonTitle: 'Themes_Addon_Strong_Title' | translate
+                                                }">
+                                        </ng-container>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_QsAssign_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content qs-button-content">
+                                    <div>
+                                        <p class="qs-button-sub-title body-sm" [innerHTML]="'Themes_Addon_QsAssign_SubTitle' | translate"></p>
+                                        <div class="qs-button-component">
+                                            <div>
+                                                <pep-select 
+                                                [label]="(TRANSLATION_PREFIX_KEY + 'SelectQsButtonColor_Title') | translate"
+                                                [value]="themeObj.qsButtonColor" [options]="colorsOptions" [emptyOption]="false"
+                                                (valueChange)="themeObj.qsButtonColor = $event; onValueChanged();"></pep-select>
+                                            </div>
+                                            <div>
+                                                <pep-select 
+                                                [label]="(TRANSLATION_PREFIX_KEY + 'SelectQsButtonStyle_Title') | translate"
+                                                [value]="themeObj.qsButtonStyle" [options]="buttonStylesOptions" [emptyOption]="false"
+                                                (valueChange)="themeObj.qsButtonStyle = $event; onValueChanged();"></pep-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="preview-box">
+                                            <div class="preview-box-title">
+                                                <span class="ellipsis body-sm">
+                                                    {{ 'Themes_Addon_QsAssign_PreviewTitle' | translate }}
+                                                </span>
+                                            </div>
+                                            <div class="preview-box-body">
+                                                <pep-quantity-selector [key]="'QsButtonPreview'" [styleType]="themeObj.qsButtonStyle" [value]="'0'"></pep-quantity-selector>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_CardAssign_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content card-style-content">
+                                    <div>
+                                        <p class="card-style-sub-title body-sm" [innerHTML]="'Themes_Addon_CardAssign_SubTitle' | translate"></p>
+                                        <div class="card-style-component">
+                                            <!-- <div>
+                                            </div> -->
+                                            <div>
+                                                <pep-select 
+                                                [label]="(TRANSLATION_PREFIX_KEY + 'SelectCardSpacing_Title') | translate"
+                                                [value]="themeObj.cardGutterSize" [options]="cardFontGutterOptions" [emptyOption]="false"
+                                                (valueChange)="themeObj.cardGutterSize = $event; onValueChanged();"></pep-select>
+                                            </div>
+                                            <div>
+                                                <pep-select 
+                                                [label]="(TRANSLATION_PREFIX_KEY + 'SelectCardShadow_Title') | translate"
+                                                [value]="themeObj.cardShadow" [options]="cardShadowOptions" [emptyOption]="false"
+                                                (valueChange)="themeObj.cardShadow = $event; onValueChanged();"></pep-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <ng-container *ngTemplateOutlet="cardStyleTemplate"></ng-container>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+        </div>
+    </ng-container>
+</pep-page-layout>
+
+<ng-template #buttonsStyleByColorTemplate let-viewTitle="viewTitle" let-colorClass="colorClass">
+    <div class="preview-box">
+        <div class="preview-box-title">
+            <span class="ellipsis body-sm color-{{ colorClass }}">
+                {{ viewTitle }}
+            </span>
+        </div>
+        <div class="preview-box-body">
+            <button class="mat-button pep-button chip strong sm pep-spacing-element {{ colorClass }}">
+                <div class="ellipsis block">
+                    {{ 'Themes_Addon_Strong_Title' | translate }}
+                </div>
+            </button>
+            <button class="mat-button pep-button chip regular sm pep-spacing-element {{ colorClass }}">
+                <div class="ellipsis">
+                    {{ 'Themes_Addon_Regular_Title' | translate }}
+                </div>
+            </button>
+            <button class="mat-button pep-button chip weak sm pep-spacing-element {{ colorClass }}">
+                <div class="ellipsis">
+                    {{ 'Themes_Addon_Weak_Title' | translate }}
+                </div>
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #fontStyleTemplate>
+    <div class="preview-box">
+        <div class="preview-box-title pep-border-bottom">
+            <span class="ellipsis title-lg" style="text-align: start;">
+                {{ 'Themes_Addon_HeadingFont_PreviewTitle' | translate }}
+            </span>
+        </div>
+        <div class="preview-box-body">
+            <p class="body-sm" [innerHTML]="'Themes_Addon_SystemFont_PreviewText' | translate"></p>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #roundnessStyleTemplate>
+    <div class="preview-box">
+        <div class="preview-box-title">
+            <span class="ellipsis body-sm">
+                {{ 'Themes_Addon_Roundness_PreviewTitle' | translate }}
+            </span>
+        </div>
+        <div class="preview-box-body">
+            <button class="pep-spacing-element roundness-sm pep-button strong system-primary xs lock-events">
+                <div class="ellipsis body-xs">{{ 'Themes_Addon_SM_Title' | translate }}</div>
+            </button>
+            <button class="pep-spacing-element roundness-md pep-button strong system-primary md lock-events">
+                <div class="ellipsis body-sm">{{ 'Themes_Addon_MD_Title' | translate }}</div>
+            </button>
+            <button class="pep-spacing-element roundness-lg pep-button strong system-primary xl lock-events">
+                <div class="ellipsis body-lg">{{ 'Themes_Addon_LG_Title' | translate }}</div>
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #buttonStyleByColorTemplate let-viewTitle="viewTitle" let-buttonType="buttonType" let-buttonTitle="buttonTitle">
+    <div class="preview-box">
+        <div class="preview-box-title">
+            <span class="ellipsis body-sm">
+                {{ viewTitle }}
+            </span>
+        </div>
+        <div class="preview-box-body">
+            <button class="mat-button pep-button {{ buttonType }} md">
+                <div class="ellipsis block">{{ buttonTitle }}</div>
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #cardStyleTemplate>
+    <div class="preview-box">
+        <div class="preview-box-body card-view">
+            <fieldset class="pep-form">
+                <div class="card-spacing">
+                    <div class="mat-grid-tile">
+                        <div class="pep-card-input card-flex-container text-align-3 one-row">
+                            <span class="body-sm value" title="{{ 'Themes_Addon_CardAssign_PreviewTitle' | translate }}">
+                                {{ 'Themes_Addon_CardAssign_PreviewTitle' | translate }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mat-grid-tile">
+                        <div class="img-container">
+                            <span class="indicators-container floating-field">
+                                <div class="mat-icon notranslate material-icons mat-icon-no-color" role="img" aria-hidden="true">
+                                    <svg class="pull-left flip svg-icon" viewBox="0 0 8 8" style="fill: rgb(0, 146, 188);">
+                                        <circle cx="4" cy="4" r="3.5" fill-rule="evenodd" stroke="#000" stroke-opacity=".04"></circle>
+                                    </svg>
+                                    <svg class="pull-left flip svg-icon" viewBox="0 0 8 8">
+                                        <circle cx="4" cy="4" r="3.5" fill-rule="evenodd" stroke="#000" stroke-opacity=".04"></circle>
+                                    </svg>
+                                    <svg class="pull-left flip svg-icon" viewBox="0 0 8 8">
+                                        <circle cx="4" cy="4" r="3.5" fill-rule="evenodd" stroke="#000" stroke-opacity=".04"></circle>
+                                    </svg>
+                                    <svg class="pull-left flip svg-icon" viewBox="0 0 8 8">
+                                        <circle cx="4" cy="4" r="3.5" fill-rule="evenodd" stroke="#000" stroke-opacity=".04"></circle>
+                                    </svg>
+                                </div>
+                            </span>
+                            <button class="floating-field pep-button icon-button weak invert">
+                                <div class="mat-icon notranslate material-icons mat-icon-no-color" role="img" aria-hidden="true">
+                                    <pep-icon name="system_menu"></pep-icon>
+                                </div>
+                            </button>
+                            <div class="img-wrapper">
+                                <img class="pep-report-file" id="Image" alt="" [src]="imageUrl" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mat-grid-tile">
+                        <div class="pep-card-input card-flex-container text-align-1 one-row">
+                            <span class="body-sm value" title="{{ 'Themes_Addon_CardAssign_PreviewName' | translate }}">
+                                {{ 'Themes_Addon_CardAssign_PreviewName' | translate }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mat-grid-tile">
+                        <div class="pep-textarea-card-container card-flex-container text-align-1">
+                            <span class="body-sm value wrap" title="{{ 'Themes_Addon_CardAssign_PreviewDescription' | translate }}">
+                                {{ 'Themes_Addon_CardAssign_PreviewDescription' | translate }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mat-grid-tile">
+                        <div class="pep-card-input card-flex-container text-align-1 one-row">
+                            <span class="body-xs title" title="TOD{{ 'Themes_Addon_CardAssign_PreviewUnitPriceTitle' | translate }}">
+                                {{ 'Themes_Addon_CardAssign_PreviewUnitPriceTitle' | translate }}&nbsp;
+                            </span>
+                            <span class="body-sm value" title="{{ 'Themes_Addon_CardAssign_PreviewUnitPriceValue' | translate }}">
+                                {{ 'Themes_Addon_CardAssign_PreviewUnitPriceValue' | translate }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mat-grid-tile">
+                        <pep-quantity-selector [key]="'QsInCardPreview'" [value]="'0'"  [styleType]="themeObj.qsButtonStyle"
+                            [rowSpan]="2" [layoutType]="'card'"></pep-quantity-selector>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #publishModalTemplate let-data>
+    <pep-dialog [title]="'Themes_Addon_PublishDialog_Title' | translate">
+        <ng-container pep-dialog-content>
+            <textarea #textarea class="publish-comment"></textarea>
+        </ng-container>
+        <ng-container pep-dialog-actions>
+            <div class="pep-spacing-element-negative">
+                <button mat-button class="pep-spacing-element pep-button md strong"
+                    (click)="publishTheme(textarea.value)">
+                    {{ 'Themes_Addon_Publish' | translate}}
+                </button>
+            </div>
+        </ng-container>
+    </pep-dialog>
+</ng-template>
