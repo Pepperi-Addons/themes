@@ -18,8 +18,6 @@ module.exports = {
     ...webpackConfig,
     output: {
         ...webpackConfig.output,
-        uniqueName: filename,
-        uniqueName: "addon",
-        publicPath: "http://localhost:4400/"
+        uniqueName: filename
     },
 };

@@ -62,7 +62,7 @@ class MyService {
         const addonBlockRelation: Relation = {
             RelationName: "SettingsBlock",
             GroupName: 'BrandedApp',
-            SlugName: 'themes_editor',
+            SlugName: 'themes',
             Name: this.themesBlockName,
             Description: 'Themes editor',
             Type: "NgComponent",
