@@ -63,7 +63,7 @@ class MyService {
             RelationName: "SettingsBlock",
             GroupName: 'BrandedApp',
             SlugName: 'themes',
-            Name: this.themesBlockName,
+            Name: "Themes",
             Description: 'Themes editor',
             Type: "NgComponent",
             SubType: "NG14",
