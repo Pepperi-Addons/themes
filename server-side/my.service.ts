@@ -61,10 +61,10 @@ class MyService {
     private upsertSettingsRelation() {
         const addonBlockRelation: Relation = {
             RelationName: "SettingsBlock",
-            GroupName: 'Pages',
-            SlugName: 'assets_manager',
+            GroupName: 'BrandedApp',
+            SlugName: 'themes_editor',
             Name: this.themesBlockName,
-            Description: 'New Assets Manager',
+            Description: 'Themes editor',
             Type: "NgComponent",
             SubType: "NG14",
             AddonUUID: this.addonUUID,
