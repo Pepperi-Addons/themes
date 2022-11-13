@@ -171,7 +171,7 @@ export class PluginComponent implements OnInit, OnDestroy {
 
     loadThemeUI() {
         this.changeWebappVariables();
-        const domain = this.addonService.getAddonStaticFolder();
+        const domain = this.addonService.getAddonStaticFolder(this.pluginService.addonUUID);
         this.imageUrl = this.fileService.getAssetsImagesPath(domain, 'sail-away.jpg');
     }
 

@@ -30,6 +30,14 @@ import { PepSelectModule } from '@pepperi-addons/ngx-lib/select';
 import { PepQuantitySelectorModule } from '@pepperi-addons/ngx-lib/quantity-selector';
 import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
 import { PepPageLayoutModule } from '@pepperi-addons/ngx-lib/page-layout';
+import { config } from '../addon.config';
+
+export const routes: Routes = [
+    {
+        path: '',
+        component: PluginComponent
+    }
+];
 
 @NgModule({
     declarations: [PluginComponent],
@@ -48,11 +56,12 @@ import { PepPageLayoutModule } from '@pepperi-addons/ngx-lib/page-layout';
         TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,
-                useFactory: PepAddonService.createDefaultMultiTranslateLoader,
-                deps: [HttpClient, PepFileService, PepAddonService]
+                useFactory: (addonService: PepAddonService) => 
+                    PepAddonService.createMultiTranslateLoader(config.AddonUUID, addonService, ['ngx-lib', 'ngx-composite-lib']),
+                deps: [PepAddonService]
             }, isolate: false
         }),
-        FormsModule,
+        RouterModule.forChild(routes),
         ReactiveFormsModule,
         PepDialogModule,
         PepIconModule,

@@ -1,10 +1,13 @@
-import {PapiClient, InstalledAddon} from '@pepperi-addons/papi-sdk';
+import {PapiClient, InstalledAddon, Relation} from '@pepperi-addons/papi-sdk';
 import {Client} from '@pepperi-addons/debug-server';
 
 class MyService {
     papiClient: PapiClient;
+    addonUUID: string;
+    themesBlockName = 'Plugin';
 
     constructor(private client: Client) {
+        this.addonUUID = client.AddonUUID;
         this.papiClient = new PapiClient({
             baseURL: client.BaseURL,
             token: client.OAuthAccessToken,
@@ -18,6 +21,11 @@ class MyService {
     /**
      * Install theme addon.
      */
+     createRelationsAndInstallThemes(){
+        this.installTheme()
+        this.upsertSettingsRelation();
+     }
+
     async installTheme(): Promise<any> {
         let result: any = {};
         const systemData = {
@@ -30,24 +38,49 @@ class MyService {
             ],
         };
 
-        const body = {
+        const body:InstalledAddon = {
             Addon: {UUID: this.client.AddonUUID},
             SystemData: JSON.stringify(systemData),
+            PublicBaseURL: ""
         };
-
+  
+        
         try {
             const tmpResult: any = await this.papiClient.addons.installedAddons.upsert(body);
             result['success'] = tmpResult.Status;
             result['resultObject'] = {};
         } catch (error) {
-            result['success'] = false;
-            result['errorMessage'] = error.message;
-            result['resultObject'] = null;
+            // result['success'] = false;
+            // result['errorMessage'] = error.message;
+            // result['resultObject'] = null;
         }
 
         return result;
     }
 
+    private upsertSettingsRelation() {
+        const addonBlockRelation: Relation = {
+            RelationName: "SettingsBlock",
+            GroupName: 'Pages',
+            SlugName: 'assets_manager',
+            Name: this.themesBlockName,
+            Description: 'New Assets Manager',
+            Type: "NgComponent",
+            SubType: "NG14",
+            AddonUUID: this.addonUUID,
+            AddonRelativeURL: `file_${this.addonUUID}`,
+            ComponentName: `${this.themesBlockName}Component`,
+            ModuleName: `${this.themesBlockName}Module`,
+            ElementsModule: 'WebComponents',
+            ElementName: `settings-element-${this.addonUUID}`,
+        }; 
+        
+        this.upsertRelation(addonBlockRelation);
+    }
+
+    private upsertRelation(relation): Promise<any> {
+        return this.papiClient.post('/addons/data/relations', relation);
+    }
     /**
      * Publish the theme object into addon additional data.
      */
@@ -75,9 +108,9 @@ class MyService {
             result['success'] = true;
             result['resultObject'] = webappVariables;
         } catch (error) {
-            result['success'] = false;
-            result['errorMessage'] = error.message;
-            result['resultObject'] = null;
+            // result['success'] = false;
+            // result['errorMessage'] = error.message;
+            // result['resultObject'] = null;
         }
 
         return result;
