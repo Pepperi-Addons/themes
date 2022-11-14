@@ -299,3 +299,7 @@
     width: 510px;
     height: 94px;
 }
+
+::ng-deep.mat-expansion-panel-header-title{
+    flex-basis: unset !important;
+}
