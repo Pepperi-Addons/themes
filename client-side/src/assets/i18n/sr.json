@@ -113,8 +113,5 @@
     "Themes_Addon_ShadowOffset_Small": "Small",
     "Themes_Addon_ShadowOffset_Medium": "Medium",
     "Themes_Addon_ShadowOffset_Large": "Large",
-    "Themes_Addon_ShadowOffset_XL": "XL",
-    "Themes_Addon_StyleType_Strong": "Strong",
-    "Themes_Addon_StyleType_Regular": "Regular",
-    "Themes_Addon_StyleType_Weak": "Weak"
+    "Themes_Addon_ShadowOffset_XL": "XL"
 }
