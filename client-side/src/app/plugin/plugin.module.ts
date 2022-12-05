@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+// import { BrowserModule } from '@angular/platform-browser';
+// import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { PluginComponent } from './plugin.component';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
@@ -43,8 +43,8 @@ export const routes: Routes = [
     declarations: [PluginComponent],
     imports: [
         CommonModule,
-        BrowserModule,
-        BrowserAnimationsModule,
+        // BrowserModule,
+        // BrowserAnimationsModule,
         HttpClientModule,
         MatDialogModule,
         MatTabsModule,

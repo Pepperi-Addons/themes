@@ -113,8 +113,9 @@ export class ThemeData {
     cardShadow = SHADOW_OFFSET_TYPE.Medium;
 }
 
-export class AdditionalData {
+export class ThemesMergedData {
     unPublishedThemeObj: ThemeData = null;
     publishedThemeObj: ThemeData = null;
-    webappVariables: any = null;
+    publishedComment: string = '';
+    cssVariables: any = null;
 }

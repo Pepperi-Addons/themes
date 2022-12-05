@@ -5,7 +5,7 @@ import {TranslateService} from '@ngx-translate/core';
 
 import { PepCustomizationService, PepLayoutType, PepStyleType, PepAddonService, PepFileService} from "@pepperi-addons/ngx-lib";
 import {
-    AdditionalData,
+    ThemesMergedData,
     ThemeData,
     FONT_SIZES_TYPE,
     FONT_BODY_TYPE,
@@ -270,11 +270,11 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
 
     changeWebappVariables() {
-        const themeVariables = this.convertToWebappVariables(this.themeObj);
+        const themeVariables = this.convertToCssVariables(this.themeObj);
         this.customizationService.setThemeVariables(themeVariables);
     }
 
-    convertToWebappVariables(themeObj) {
+    convertToCssVariables(themeObj) {
         const themeVariables = {};
 
         // Convert colors.
@@ -506,22 +506,6 @@ export class PluginComponent implements OnInit, OnDestroy {
         }
     }
 
-    saveThemeObject(successCallback = null, errorCallback = null) {
-        this.pluginService.saveTheme(
-            this.themeObj,
-            (res) => {
-                if (successCallback) {
-                    successCallback(res);
-                }
-            },
-            (error) => {
-                if (errorCallback) {
-                    errorCallback(error);
-                }
-            }
-        );
-    }
-
     readFile(file: File) {
         return new Promise((resolve) => {
             const fr = new FileReader();
@@ -569,9 +553,8 @@ export class PluginComponent implements OnInit, OnDestroy {
         const self = this;
 
         this.pluginService.getAdditionalData(
-            (res) => {
-                const additionalData = JSON.parse(res.AdditionalData);
-                self.themeObj = publishedObject ? additionalData.publishedThemeObj : additionalData.unPublishedThemeObj;
+            (res: ThemesMergedData) => {
+                self.themeObj = publishedObject ? res.publishedThemeObj : res.unPublishedThemeObj;
 
                 if (!self.themeObj) {
                     self.loadDefaultThemeData();
@@ -625,17 +608,33 @@ export class PluginComponent implements OnInit, OnDestroy {
 
         // this.addonService.openDialog(data, 'pepperi-modalbox', '16rem', '0', '100vw', '100vh');
     }
+    
+    saveThemeObject(successCallback = null, errorCallback = null) {
+        this.pluginService.saveTheme(
+            this.themeObj,
+            (res) => {
+                if (successCallback) {
+                    successCallback(res);
+                }
+            },
+            (error) => {
+                if (errorCallback) {
+                    errorCallback(error);
+                }
+            }
+        );
+    }
 
     publishTheme(comment: string) {
         // Publish the saved object.
-        const additionalData = new AdditionalData();
+        const additionalData = new ThemesMergedData();
 
         additionalData.unPublishedThemeObj = this.themeObj;
         additionalData.publishedThemeObj = this.themeObj;
-        additionalData.webappVariables = this.convertToWebappVariables(this.themeObj);
+        additionalData.publishedComment = comment;
+        additionalData.cssVariables = this.convertToCssVariables(this.themeObj);
 
         this.pluginService.publishTheme(
-            comment,
             additionalData,
             (res) => {
                 // this.publishComment = '';

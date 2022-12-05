@@ -4,7 +4,7 @@ import {Client, Request} from '@pepperi-addons/debug-server';
 export async function install(client: Client, request: Request) {
     try {
         const service = new MyService(client)
-        service.createRelationsAndInstallThemes();
+        await service.createRelationsAndInstallThemes();
     } catch (err) {
         throw new Error(`Failed to create ADAL Tables. error - ${err}`);
     }
@@ -19,7 +19,7 @@ export async function uninstall(client: Client, request: Request) {
 export async function upgrade(client: Client, request: Request) {
     try {
         const service = new MyService(client)
-        service.createRelationsAndInstallThemes();
+        await service.createRelationsAndInstallThemes();
     } catch (err) {
         throw new Error(`Failed to create ADAL Tables. error - ${err}`);
     }
