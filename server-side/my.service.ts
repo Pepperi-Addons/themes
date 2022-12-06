@@ -68,12 +68,12 @@ class MyService {
 
             if (themesAdditionalData != null) {
                 // Insert the css variables.
-                const cssVariables = {
+                const cssVariablesData = {
                     Key: DATA_OBJECT_KEY,
                     cssVariables: themesAdditionalData.webappVariables
                 };
 
-                await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(cssVariables)
+                await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(cssVariablesData)
 
                 // Insert the themes published and unpublished.
                 const otherData = {

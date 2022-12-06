@@ -1,0 +1,7 @@
+{
+    "AddonUUID": "95501678-6687-4fb3-92ab-1155f47f839e",
+    "BaseURL": "http://localhost:8088",
+    "FileName": "addon-cpi.js",
+    "SessionToken": "{{Session_Token}}",
+    "JWT": "{{Jwt_Token}}"
+}
