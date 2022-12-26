@@ -44,7 +44,7 @@ class ThemesService {
             const temp = await pepperi.papiClient.apiCall("GET", `addons/api/${config.AddonUUID}/themes/css_variables`);
             const tmpRes = temp.ok ? await(temp.json()) : null;
 
-            result = tmpRes.success ? tmpRes.resultObject : {};
+            result = tmpRes.success ? tmpRes.resultObject || {} : {};
         }
 
         return result;
