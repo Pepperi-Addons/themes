@@ -324,22 +324,23 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
 
     setFontSizes(themeVariables, wantedSize) {
-        if (wantedSize === FONT_SIZES_TYPE.Small) {
-            themeVariables[PepCustomizationService.FONT_SIZE_2XS_KEY] = '0.325' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.FONT_SIZE_XS_KEY] = '0.55' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.FONT_SIZE_SM_KEY] = '0.675' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.FONT_SIZE_MD_KEY] = '0.8' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.FONT_SIZE_LG_KEY] = '0.925' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.FONT_SIZE_XL_KEY] = '1.05' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.FONT_SIZE_2XL_KEY] = '1.3' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_2XS_KEY] = '0.45' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_XS_KEY] = '0.8' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_SM_KEY] = '1.05' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_MD_KEY] = '1.3' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_LG_KEY] = '1.55' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_XL_KEY] = '1.8' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_2XL_KEY] = '2.05' + PepCustomizationService.REM_STRING;
-        } else if (wantedSize === FONT_SIZES_TYPE.Medium) {
+        // For now we removed this options and the default for all is medium by Yonatan.B-K request.
+        // if (wantedSize === FONT_SIZES_TYPE.Small) {
+        //     themeVariables[PepCustomizationService.FONT_SIZE_2XS_KEY] = '0.325' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.FONT_SIZE_XS_KEY] = '0.55' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.FONT_SIZE_SM_KEY] = '0.675' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.FONT_SIZE_MD_KEY] = '0.8' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.FONT_SIZE_LG_KEY] = '0.925' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.FONT_SIZE_XL_KEY] = '1.05' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.FONT_SIZE_2XL_KEY] = '1.3' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_2XS_KEY] = '0.45' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_XS_KEY] = '0.8' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_SM_KEY] = '1.05' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_MD_KEY] = '1.3' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_LG_KEY] = '1.55' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_XL_KEY] = '1.8' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_2XL_KEY] = '2.05' + PepCustomizationService.REM_STRING;
+        // } else if (wantedSize === FONT_SIZES_TYPE.Medium) {
             themeVariables[PepCustomizationService.FONT_SIZE_2XS_KEY] = '0.625' + PepCustomizationService.REM_STRING;
             themeVariables[PepCustomizationService.FONT_SIZE_XS_KEY] = '0.75' + PepCustomizationService.REM_STRING;
             themeVariables[PepCustomizationService.FONT_SIZE_SM_KEY] = '0.875' + PepCustomizationService.REM_STRING;
@@ -354,22 +355,22 @@ export class PluginComponent implements OnInit, OnDestroy {
             themeVariables[PepCustomizationService.LINE_HEIGHT_LG_KEY] = '1.75' + PepCustomizationService.REM_STRING;
             themeVariables[PepCustomizationService.LINE_HEIGHT_XL_KEY] = '2' + PepCustomizationService.REM_STRING;
             themeVariables[PepCustomizationService.LINE_HEIGHT_2XL_KEY] = '2.25' + PepCustomizationService.REM_STRING;
-        } else if (wantedSize === FONT_SIZES_TYPE.Large) {
-            themeVariables[PepCustomizationService.FONT_SIZE_2XS_KEY] = '0.925' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.FONT_SIZE_XS_KEY] = '0.95' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.FONT_SIZE_SM_KEY] = '1.075' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.FONT_SIZE_MD_KEY] = '1.2' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.FONT_SIZE_LG_KEY] = '1.325' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.FONT_SIZE_XL_KEY] = '1.45' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.FONT_SIZE_2XL_KEY] = '1.7' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_2XS_KEY] = '0.875' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_XS_KEY] = '1.2' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_SM_KEY] = '1.45' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_MD_KEY] = '1.7' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_LG_KEY] = '1.95' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_XL_KEY] = '2.2' + PepCustomizationService.REM_STRING;
-            themeVariables[PepCustomizationService.LINE_HEIGHT_2XL_KEY] = '2.45' + PepCustomizationService.REM_STRING;
-        }
+        // } else if (wantedSize === FONT_SIZES_TYPE.Large) {
+        //     themeVariables[PepCustomizationService.FONT_SIZE_2XS_KEY] = '0.925' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.FONT_SIZE_XS_KEY] = '0.95' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.FONT_SIZE_SM_KEY] = '1.075' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.FONT_SIZE_MD_KEY] = '1.2' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.FONT_SIZE_LG_KEY] = '1.325' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.FONT_SIZE_XL_KEY] = '1.45' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.FONT_SIZE_2XL_KEY] = '1.7' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_2XS_KEY] = '0.875' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_XS_KEY] = '1.2' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_SM_KEY] = '1.45' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_MD_KEY] = '1.7' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_LG_KEY] = '1.95' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_XL_KEY] = '2.2' + PepCustomizationService.REM_STRING;
+        //     themeVariables[PepCustomizationService.LINE_HEIGHT_2XL_KEY] = '2.45' + PepCustomizationService.REM_STRING;
+        // }
     }
 
     convertStylesToWebappVariables(themeObj, themeVariables) {
