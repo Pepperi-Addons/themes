@@ -6,7 +6,8 @@
   "DefaultEditor": "main",
   "Endpoints": [
     "installation.ts",
-    "themes.ts"
+    "themes.ts",
+    "api.ts"
   ],
   "Editors": [
     "main"

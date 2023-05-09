@@ -2,8 +2,10 @@ import {Component, ViewEncapsulation, EventEmitter, Input, Output, OnInit, OnDes
 import {Router, ActivatedRoute} from '@angular/router';
 import {PluginService} from './plugin.service';
 import {TranslateService} from '@ngx-translate/core';
+import { NgComponentRelation } from "@pepperi-addons/papi-sdk";
 
-import { PepCustomizationService, PepLayoutType, PepStyleType, PepAddonService, PepFileService} from "@pepperi-addons/ngx-lib";
+import { PepCustomizationService, PepLayoutType, PepStyleType, PepAddonService, PepFileService } from "@pepperi-addons/ngx-lib";
+import { PepRemoteLoaderOptions, PepRemoteLoaderService } from "@pepperi-addons/ngx-lib/remote-loader";
 import {
     ThemesMergedData,
     ThemeData,
@@ -22,6 +24,13 @@ import { IPepMenuItemClickEvent, PepMenuItem } from '@pepperi-addons/ngx-lib/men
 import { config } from './../addon.config';
 import { MatDialogRef } from '@angular/material/dialog';
 import { PepDialogService } from '@pepperi-addons/ngx-lib/dialog';
+import { BehaviorSubject, lastValueFrom, Observable } from 'rxjs';
+
+
+export interface IAddonTab {
+    title: string;
+    theme?: any;
+}
 
 @Component({
     selector: 'plugin',
@@ -59,7 +68,18 @@ export class PluginComponent implements OnInit, OnDestroy {
     showReset = false;
 
     LEGACY_STRING = ThemeData.LEGACY_STRING;
-    themeObj = new ThemeData();
+    protected pepperiTheme = new ThemeData();
+
+    private _tabsSubject: BehaviorSubject<Map<string, IAddonTab>> = new BehaviorSubject<Map<string, any>>(new Map<string, IAddonTab>());
+    get tabs$(): Observable<ReadonlyMap<string, IAddonTab>> {
+        return this._tabsSubject.asObservable();
+    }
+
+    // For load the tabs
+    private _tabsRemoteLoaderOptionsMap = new Map<string, PepRemoteLoaderOptions>();
+    get tabsRemoteLoaderOptionsMap(): ReadonlyMap<string, any> {
+        return this._tabsRemoteLoaderOptionsMap;
+    }
 
     expansionPanelHeaderHeight = '*';
 
@@ -69,6 +89,11 @@ export class PluginComponent implements OnInit, OnDestroy {
     
     @ViewChild('publishModalTemplate', { read: TemplateRef }) publishModalTemplate: TemplateRef<any>;
     private dialogRef: MatDialogRef<any> = null;
+
+    tabRelations;
+
+
+    onTabHostEventsCallback: (tabKey: string, event: CustomEvent) => void;
 
     // Data sent from webapp
     @Input() queryParams: any;
@@ -84,6 +109,7 @@ export class PluginComponent implements OnInit, OnDestroy {
         private addonService: PepAddonService,
         private fileService: PepFileService,
         private translate: TranslateService,
+        private remoteLoaderService: PepRemoteLoaderService,
         private routeParams: ActivatedRoute,
         private router: Router
     ) {
@@ -98,6 +124,10 @@ export class PluginComponent implements OnInit, OnDestroy {
         this.routeParams.queryParams.subscribe((queryParams) => {
             this.showReset = queryParams.showReset;
         });
+
+        this.onTabHostEventsCallback = (tabKey: string, event: CustomEvent) => {
+            this.onTabHostEvents(tabKey, event.detail);
+        }
     }
 
     initOptions() {
@@ -160,7 +190,8 @@ export class PluginComponent implements OnInit, OnDestroy {
             () => {
                 this.initOptions();
                 this.loadMenu();
-                this.loadThemeObject(false);
+                this.loadPepperiThemeObject(false);
+                this.loadTabsThemeData(false);
             }
         )
     }
@@ -263,14 +294,14 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
 
     onUseSecondaryColorClick(event) {
-        this.themeObj.useSecondaryColor = !this.themeObj.useSecondaryColor;
+        this.pepperiTheme.useSecondaryColor = !this.pepperiTheme.useSecondaryColor;
         this.onValueChanged();
         event.stopPropagation();
         return false;
     }
 
     changeWebappVariables() {
-        const themeVariables = this.convertToCssVariables(this.themeObj);
+        const themeVariables = this.convertToCssVariables(this.pepperiTheme);
         this.customizationService.setThemeVariables(themeVariables);
     }
 
@@ -405,7 +436,7 @@ export class PluginComponent implements OnInit, OnDestroy {
         this.setStyleButtonColor(themeVariables, PepCustomizationService.COLOR_WEAK_KEY,
             themeObj.weakButtonColor, themeObj.useSecondaryColor);
 
-        if (this.themeObj.useTopHeaderColorLegacy) {
+        if (this.pepperiTheme.useTopHeaderColorLegacy) {
             themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-h'] = '';
             themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-s'] = '';
             themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-l'] = '';
@@ -486,10 +517,32 @@ export class PluginComponent implements OnInit, OnDestroy {
         // Implement: Tab navigate function
     }
 
-    onValueChanged() {
-        this.saveThemeObject((res) => {
-            this.changeWebappVariables();
-        });
+    async onValueChanged() {
+        await lastValueFrom(this.pluginService.savePepperiTheme(this.pepperiTheme));
+        this.changeWebappVariables();
+    }
+
+    onTabLoad(tabKey: string, event: any) {
+        // TODO:?
+    }
+
+    async onAddonThemeValueChange(tabKey: string, theme: any) {
+        // Save the current addon theme.
+        const res = await lastValueFrom(this.pluginService.saveAddonTheme(tabKey, theme));
+
+        // Update the map to be updated.
+        const currentTab = this._tabsSubject.value.get(tabKey);
+        currentTab.theme = theme;
+        this._tabsSubject.value.set(tabKey, currentTab);
+    }
+
+    async onTabHostEvents(tabKey: string, event: any) {
+        // Implement editors events.
+        switch(event.action){
+            case 'set-theme':
+                await this.onAddonThemeValueChange(tabKey, event.theme);
+                break;
+        }
     }
 
     loadMenu() {
@@ -518,19 +571,16 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
 
     importFromJsonFile(files: FileList) {
-        const self = this;
-
         if (files.length > 0) {
-            this.readFile(files[0]).then((content: string) => {
+            this.readFile(files[0]).then(async (content: string) => {
                 try {
                     // Init the input file value.
-                    self.importFile.nativeElement.value = '';
+                    this.importFile.nativeElement.value = '';
 
                     // Check for validation if needed.
-                    self.themeObj = JSON.parse(content);
-                    self.saveThemeObject((res) => {
-                        self.loadThemeUI();
-                    });
+                    this.pepperiTheme = JSON.parse(content);
+                    await lastValueFrom(this.pluginService.savePepperiTheme(this.pepperiTheme));
+                    this.loadThemeUI();
                 } catch (ex) {
                     // alert('ex when trying to parse json = ' + ex);
                 }
@@ -539,7 +589,7 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
 
     exportToJsonFile() {
-        const dataStr = JSON.stringify(this.themeObj);
+        const dataStr = JSON.stringify(this.pepperiTheme);
         const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
 
         const exportFileDefaultName = 'theme.json';
@@ -550,54 +600,99 @@ export class PluginComponent implements OnInit, OnDestroy {
         linkElement.click();
     }
 
-    loadThemeObject(publishedObject, successCallback = null, errorCallback = null) {
-        const self = this;
+    async loadPepperiThemeObject(publishedObject: boolean, successCallback = null, errorCallback = null) {
+        // Get pepperi theme
+        const res = await lastValueFrom(this.pluginService.getPepperiTheme(publishedObject));
 
-        this.pluginService.getAdditionalData(
-            (res: ThemesMergedData) => {
-                self.themeObj = publishedObject ? res.publishedThemeObj : res.unPublishedThemeObj;
+        this.pepperiTheme = res;
 
-                if (!self.themeObj) {
-                    self.loadDefaultThemeData();
-                }
+        if (!this.pepperiTheme) {
+            this.loadDefaultThemeData();
+        }
 
-                self.loadThemeUI();
+        this.loadThemeUI();
 
-                if (successCallback) {
-                    successCallback(res);
-                }
-            },
-            (error) => {
-                if (errorCallback) {
-                    errorCallback(error);
-                }
+        if (successCallback) {
+            successCallback(res);
+        }
+    }
+
+    private getRemoteEntryByType(remoteBasePath: string, relation: NgComponentRelation) {
+        return `${remoteBasePath}${relation.AddonRelativeURL}.js`;
+    }
+
+    private getRemoteLoaderOptions(data: any) {
+        const remoteEntry = this.getRemoteEntryByType(data.addonPublicBaseURL, data.relation);
+        const remoteLoaderOptions = this.remoteLoaderService.getRemoteLoaderOptions({
+            relation: data.relation,
+            addonPublicBaseURL: data.addonPublicBaseURL
+        }, remoteEntry);
+
+        return remoteLoaderOptions;
+    }
+
+    async loadTabsThemeData(publishedObject: boolean, successCallback = null) {
+        // Get the rest tabs (addons themes).
+        const availableTabs = await lastValueFrom(this.pluginService.getAddonsThemes(publishedObject));
+        const tabs = new Map<string, IAddonTab>();
+        this._tabsRemoteLoaderOptionsMap.clear();
+
+        for (let index = 0; index < availableTabs.length; index++) {
+            const availableTab = availableTabs[index];
+            
+            const relation: NgComponentRelation = availableTab?.relation;
+            const addonPublicBaseURL = availableTab?.addonPublicBaseURL;
+
+            if (relation && addonPublicBaseURL) {
+                this._tabsRemoteLoaderOptionsMap.set(availableTab.key, this.getRemoteLoaderOptions(availableTab));
+                
+                // Set the tabs (themes map)
+                tabs.set(availableTab.key, {
+                    title: relation.Description || relation.Name,
+                    theme: availableTab.theme
+                });
             }
-        );
+        }
+
+        // Set the subject for update all the lisiners (tabs)
+        this._tabsSubject.next(tabs);
+
+        if (successCallback) {
+            successCallback(availableTabs);
+        }
     }
 
     loadDefaultThemeData() {
-        this.themeObj = new ThemeData();
+        this.pepperiTheme = new ThemeData();
     }
 
     resetPlugin() {
         // Reset all saved UI data
-        this.loadThemeObject(true, (res) => {
-            this.saveThemeObject();
+        this.loadPepperiThemeObject(true, async (res) => {
+            await lastValueFrom(this.pluginService.savePepperiTheme(this.pepperiTheme));
+        });
+
+        this.loadTabsThemeData(true, async (res) => {
+            // Reset all the tabs that has changes to the value before the changes. (for all addons array)
+            this._tabsSubject.value.forEach(async (value: IAddonTab, key: string) => {
+                const theme = value.theme || null;
+                await lastValueFrom(this.pluginService.saveAddonTheme(key, theme));
+            });
         });
     }
 
     raisePublishCommentDialog() {
-        const boundPublishThemeCallback = this.publishTheme.bind(this);
-        const publishButton = {
-            title: this.translate.instant(this.TRANSLATION_PREFIX_KEY + 'Publish'),
-            callback: boundPublishThemeCallback,
-            className: 'pepperi-button md strong',
-        };
-
         this.dialogRef = this.dialogService.openDialog(this.publishModalTemplate);
-
+        
         // TODO:
         // const data = new DialogData();
+        
+        // const boundPublishThemeCallback = this.publishTheme.bind(this);
+        // const publishButton = {
+        //     title: this.translate.instant(this.TRANSLATION_PREFIX_KEY + 'Publish'),
+        //     callback: boundPublishThemeCallback,
+        //     className: 'pepperi-button md strong',
+        // };
 
         // data.title = this.translate.instant(PluginComponent.TRANSLATION_PREFIX_KEY + 'PublishDialog_Title');
         // data.contentType = DialogDataType.TextArea;
@@ -610,38 +705,29 @@ export class PluginComponent implements OnInit, OnDestroy {
         // this.addonService.openDialog(data, 'pepperi-modalbox', '16rem', '0', '100vw', '100vh');
     }
     
-    saveThemeObject(successCallback = null, errorCallback = null) {
-        this.pluginService.saveTheme(
-            this.themeObj,
-            (res) => {
-                if (successCallback) {
-                    successCallback(res);
-                }
-            },
-            (error) => {
-                if (errorCallback) {
-                    errorCallback(error);
-                }
-            }
-        );
-    }
-
-    publishTheme(comment: string) {
+    async publishTheme(comment: string) {
+        const tabsData: Array<any> = [];
         // Publish the saved object.
-        const additionalData = new ThemesMergedData();
+        const pepperiTheme = new ThemesMergedData();
 
-        additionalData.unPublishedThemeObj = this.themeObj;
-        additionalData.publishedThemeObj = this.themeObj;
-        additionalData.publishedComment = comment;
-        additionalData.cssVariables = this.convertToCssVariables(this.themeObj);
+        pepperiTheme.theme = this.pepperiTheme;
+        pepperiTheme.cssVariables = this.convertToCssVariables(this.pepperiTheme);
 
-        this.pluginService.publishTheme(
-            additionalData,
-            (res) => {
-                // this.publishComment = '';
-            },
-            (error) => {}
-        );
+        tabsData.push(pepperiTheme);
+
+        // Publish also for all the other themes that exist in the tabs.
+        this._tabsSubject.value.forEach(async (value: IAddonTab, key: string) => {
+            const addonTheme = new ThemesMergedData();
+
+            if (value.theme) {
+                addonTheme.key = key;
+                addonTheme.theme = value.theme;
+
+                tabsData.push(addonTheme);
+            }
+        });
+
+        await lastValueFrom(this.pluginService.publishThemes(tabsData, comment));
 
         this.dialogRef.close();
     }

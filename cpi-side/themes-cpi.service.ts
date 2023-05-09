@@ -25,15 +25,16 @@ class ThemesService {
         return isSyncInstalled;
     }
 
-    async getThemeCssVariables(client: IClient | undefined): Promise<any> {
+    async getThemeCssVariables(key: string = '', client: IClient | undefined = undefined): Promise<any> {
         let result = {};
+        const themeKey = key || DATA_OBJECT_KEY;
         const isSyncInstalled = await this.isSyncInstalled();
 
         if (isSyncInstalled) {
             const cssVariablesData = await pepperi.api.adal.get({
                 addon: config.AddonUUID,
                 table: CSS_VARIABLES_TABLE_NAME,
-                key: DATA_OBJECT_KEY
+                key: themeKey
             });
             
             if (cssVariablesData.object) {
@@ -41,7 +42,7 @@ class ThemesService {
             }
         } else {
             // Get the cssVariables data online if sync isn't installed.
-            const temp = await pepperi.papiClient.apiCall("GET", `addons/api/${config.AddonUUID}/themes/css_variables`);
+            const temp = await pepperi.papiClient.apiCall("GET", `addons/api/${config.AddonUUID}/themes/css_variables?key=${themeKey}`);
             const tmpRes = temp.ok ? await(temp.json()) : null;
 
             result = tmpRes.success ? tmpRes.resultObject || {} : {};

@@ -4,39 +4,60 @@ import {Client, Request} from '@pepperi-addons/debug-server';
 export async function css_variables(client: Client, request: Request) {
     try {
         const service = new MyService(client);
-        const res = await service.getCssVariablesResultObject();
+        const res = await service.getCssVariablesResultObject(request?.query);
         return res;
     } catch(err) {
         throw err;
     }
 }
 
-export async function merged_data(client: Client, request: Request) {
+export async function get_pepperi_theme(client: Client, request: Request) {
     try {
         const service = new MyService(client);
-        const res = await service.getMergedData();
+        const res = await service.getPepperiTheme(request?.query);
         return res;
     } catch(err) {
         throw err;
     }
 }
 
-export async function save(client: Client, request: Request) {
+export async function get_addons_themes(client: Client, request: Request) {
+    try {
+        const service = new MyService(client);
+        const res = await service.getAddonsThemes(request?.query);
+        return res;
+    } catch(err) {
+        throw err;
+    }
+}
+
+export async function save_pepperi_theme(client: Client, request: Request) {
     try {
         const body = request.body;
         const service = new MyService(client);
-        const res = await service.saveTheme(body);
+        const res = await service.savePepperiTheme(body);
         return res;
     } catch(err) {
         throw err;
     }
 }
 
-export async function publish(client: Client, request: Request) {
+export async function save_addon_theme(client: Client, request: Request) {
     try {
         const body = request.body;
         const service = new MyService(client);
-        const res = await service.publishTheme(body);
+        const res = await service.saveAddonThemeFromEditor(body);
+        return res;
+    } catch(err) {
+        throw err;
+    }
+}
+
+export async function publish_themes(client: Client, request: Request) {
+    try {
+        const body = request.body;
+        const service = new MyService(client);
+        const res = await service.publishThemes(body);
         return res;
     } catch(err) {
         throw err;

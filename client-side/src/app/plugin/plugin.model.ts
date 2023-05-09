@@ -114,8 +114,7 @@ export class ThemeData {
 }
 
 export class ThemesMergedData {
-    unPublishedThemeObj: ThemeData = null;
-    publishedThemeObj: ThemeData = null;
-    publishedComment: string = '';
-    cssVariables: any = null;
+    key?: string = '';
+    theme: any = null;
+    cssVariables?: any = null;
 }

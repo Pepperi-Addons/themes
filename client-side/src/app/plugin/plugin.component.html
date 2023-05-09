@@ -123,9 +123,9 @@
                                             <div>
                                                 <pep-color 
                                                     [label]="(TRANSLATION_PREFIX_KEY + 'EditMainColor_Title') | translate"
-                                                    [value]="getColor(themeObj.systemPrimaryColor)"
+                                                    [value]="getColor(pepperiTheme.systemPrimaryColor)"
                                                     [type]="'main'" [showAAComplient]="false"
-                                                    (valueChange)="setColor(themeObj.systemPrimaryColor, $event); onValueChanged()">
+                                                    (valueChange)="setColor(pepperiTheme.systemPrimaryColor, $event); onValueChanged()">
                                                 </pep-color>
                                             </div>
                                         </div>
@@ -158,8 +158,8 @@
                                                 <div>
                                                     <pep-color 
                                                         [label]="(TRANSLATION_PREFIX_KEY + 'EditLinkColor_Title') | translate"
-                                                        [value]="getColor(themeObj.systemLinkColor)"
-                                                        (valueChange)="setColor(themeObj.systemLinkColor, $event); onValueChanged()">
+                                                        [value]="getColor(pepperiTheme.systemLinkColor)"
+                                                        (valueChange)="setColor(pepperiTheme.systemLinkColor, $event); onValueChanged()">
                                                     </pep-color>
                                                 </div>
                                             </div>
@@ -191,9 +191,9 @@
                                                 <div>
                                                     <pep-color 
                                                         [label]="(TRANSLATION_PREFIX_KEY + 'EditCautionColor_Title') | translate"
-                                                        [value]="getColor(themeObj.systemCautionColor)"
+                                                        [value]="getColor(pepperiTheme.systemCautionColor)"
                                                         [type]="'caution'"
-                                                        (valueChange)="setColor(themeObj.systemCautionColor, $event); onValueChanged()">
+                                                        (valueChange)="setColor(pepperiTheme.systemCautionColor, $event); onValueChanged()">
                                                     </pep-color>
                                                 </div>
                                             </div>
@@ -218,9 +218,9 @@
                                                 <div>
                                                     <pep-color 
                                                         [label]="(TRANSLATION_PREFIX_KEY + 'EditSuccessColor_Title') | translate"
-                                                        [value]="getColor(themeObj.systemSuccessColor)"
+                                                        [value]="getColor(pepperiTheme.systemSuccessColor)"
                                                         [type]="'success'"
-                                                        (valueChange)="setColor(themeObj.systemSuccessColor, $event); onValueChanged()">
+                                                        (valueChange)="setColor(pepperiTheme.systemSuccessColor, $event); onValueChanged()">
                                                     </pep-color>
                                                 </div>
                                             </div>
@@ -265,8 +265,8 @@
                                     <div class="heading-font-component">
                                         <pep-select 
                                                 [label]="(TRANSLATION_PREFIX_KEY + 'SelectHeadingFont_Title') | translate"
-                                                [value]="themeObj.headingFont" [options]="fontHeadingOptions" [emptyOption]="false"
-                                                (valueChange)="themeObj.headingFont = $event; onValueChanged();"></pep-select>
+                                                [value]="pepperiTheme.headingFont" [options]="fontHeadingOptions" [emptyOption]="false"
+                                                (valueChange)="pepperiTheme.headingFont = $event; onValueChanged();"></pep-select>
                                     </div>
                                     <ng-container *ngTemplateOutlet="fontStyleTemplate"></ng-container>
                                 </div>
@@ -284,8 +284,8 @@
                                             <div>
                                                 <pep-select 
                                                 [label]="(TRANSLATION_PREFIX_KEY + 'SelectSystemFont_Title') | translate"
-                                                [value]="themeObj.bodyFont" [options]="fontBodyOptions" [emptyOption]="false"
-                                                (valueChange)="themeObj.bodyFont = $event; onValueChanged();"></pep-select>
+                                                [value]="pepperiTheme.bodyFont" [options]="fontBodyOptions" [emptyOption]="false"
+                                                (valueChange)="pepperiTheme.bodyFont = $event; onValueChanged();"></pep-select>
                                             </div>
                                         </div>
                                     </div>
@@ -307,8 +307,8 @@
                                             <div>
                                                 <pep-select
                                                 [label]="(TRANSLATION_PREFIX_KEY + 'SelectFontSizes_Title') | translate"
-                                                [value]="themeObj.fontSizes" [options]="fontSizesOptions" [emptyOption]="false"
-                                                (valueChange)="themeObj.fontSizes = $event; onValueChanged();"></pep-select>
+                                                [value]="pepperiTheme.fontSizes" [options]="fontSizesOptions" [emptyOption]="false"
+                                                (valueChange)="pepperiTheme.fontSizes = $event; onValueChanged();"></pep-select>
                                             </div>
                                         </div>
                                     </div>
@@ -347,8 +347,8 @@
                                             <div>
                                                 <pep-select 
                                                 [label]="(TRANSLATION_PREFIX_KEY + 'SelectRoundness_Title') | translate"
-                                                [value]="themeObj.roundnessSizes" [options]="roundnessOptions" [emptyOption]="false"
-                                                (valueChange)="themeObj.roundnessSizes = $event; onValueChanged();"></pep-select>
+                                                [value]="pepperiTheme.roundnessSizes" [options]="roundnessOptions" [emptyOption]="false"
+                                                (valueChange)="pepperiTheme.roundnessSizes = $event; onValueChanged();"></pep-select>
                                             </div>
                                         </div>
                                     </div>
@@ -387,7 +387,7 @@
                                             <div>
                                                 <pep-select 
                                                 [label]="(TRANSLATION_PREFIX_KEY + 'SelectTopHeaderColor_Title') | translate"
-                                                [value]="themeObj.topHeaderColor" [options]="colorsWithLegacyOptions" [emptyOption]="false"
+                                                [value]="pepperiTheme.topHeaderColor" [options]="colorsWithLegacyOptions" [emptyOption]="false"
                                                 (valueChange)="
                                                     themeObj.topHeaderColor = $event;
                                                     themeObj.useTopHeaderColorLegacy = themeObj.topHeaderColor === LEGACY_STRING;
@@ -540,6 +540,23 @@
                                 </div>
                             </mat-expansion-panel>
                         </mat-accordion>
+                    </div>
+                </mat-tab>
+
+                <mat-tab *ngFor="let addonTab of tabs$ | async | keyvalue;" >
+                    <!-- {{ addonTab.key }} {{ addonTab.value}} -->
+                    <ng-template mat-tab-label>
+                        <span class="body-md">
+                            {{ addonTab.value.title}}
+                        </span>
+                    </ng-template>
+                    <div class="addon-theme-content">
+                        <pep-remote-loader-element *ngIf="tabsRemoteLoaderOptionsMap.has(addonTab.key)" class="remote-loader"
+                            [options]="tabsRemoteLoaderOptionsMap.get(addonTab.key)"
+                            [props]="{ hostObject: addonTab.value.theme }"
+                            [events]="{ hostEvents: onTabHostEventsCallback }"
+                            (load)="onTabLoad(addonTab.key, $event)">
+                        </pep-remote-loader-element>
                     </div>
                 </mat-tab>
             </mat-tab-group>

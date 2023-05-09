@@ -1,6 +1,6 @@
 import '@pepperi-addons/cpi-node'
 import ThemesService from './themes-cpi.service';
-// export const router = Router();
+export const router = Router();
 
 export async function load(configuration: any) {
     // console.log('cpi side works!');
@@ -11,15 +11,33 @@ export async function load(configuration: any) {
         let res: any = null;
 
         const service = new ThemesService();
-        res = await service.getThemeCssVariables(data.client);
+        res = await service.getThemeCssVariables(data.Key, data.client);
         return res;
     });
 
 }
 
+router.get("/themes/:key", async (req, res) => {
+    let result = {};
+    
+    try {
+        // const themeKey = req.query['key']?.toString();
+        console.log("CPISide - GET theme with query params (theme key)");
+        const service = new ThemesService();
+        result = await service.getThemeCssVariables(req.params.key);
+
+    } catch(exception) {
+        // Handle exception.
+    }
+
+    res.json(result);
+});
+
 // router.get('/get_theme', async (req, res) => {
 //     let resObj = {}
     
-    
+//     const service = new ThemesService();
+//     res = await service.getThemeCssVariables(themeKey);
+
 //     res.json(resObj);
 // });

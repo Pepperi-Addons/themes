@@ -31,6 +31,8 @@ import { PepQuantitySelectorModule } from '@pepperi-addons/ngx-lib/quantity-sele
 import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
 import { PepPageLayoutModule } from '@pepperi-addons/ngx-lib/page-layout';
 import { config } from '../addon.config';
+import { PepRemoteLoaderModule } from '@pepperi-addons/ngx-lib/remote-loader';
+import { PluginService } from './plugin.service';
 
 export const routes: Routes = [
     {
@@ -53,15 +55,6 @@ export const routes: Routes = [
         MatInputModule,
         MatCheckboxModule,
         MatFormFieldModule,
-        TranslateModule.forChild({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: (addonService: PepAddonService) => 
-                    PepAddonService.createMultiTranslateLoader(config.AddonUUID, addonService, ['ngx-lib', 'ngx-composite-lib']),
-                deps: [PepAddonService]
-            }, isolate: false
-        }),
-        RouterModule.forChild(routes),
         ReactiveFormsModule,
         PepDialogModule,
         PepIconModule,
@@ -71,16 +64,22 @@ export const routes: Routes = [
         PepSelectModule,
         PepQuantitySelectorModule,
         PepTopBarModule,
-        PepPageLayoutModule
+        PepPageLayoutModule,
+        PepRemoteLoaderModule,
+        TranslateModule.forChild({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: (addonService: PepAddonService) => 
+                    PepAddonService.createMultiTranslateLoader(config.AddonUUID, addonService, ['ngx-lib', 'ngx-composite-lib']),
+                deps: [PepAddonService]
+            }, isolate: false
+        }),
+        RouterModule.forChild(routes),
     ],
     exports:[PluginComponent],
     providers: [
-        HttpClient,
         TranslateStore,
-        PepHttpService,
-        PepAddonService,
-        PepFileService,
-        PepCustomizationService
+        PluginService
     ]
 })
 export class PluginModule {
