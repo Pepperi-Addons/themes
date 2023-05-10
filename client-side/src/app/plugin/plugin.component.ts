@@ -113,13 +113,6 @@ export class PluginComponent implements OnInit, OnDestroy {
         private routeParams: ActivatedRoute,
         private router: Router
     ) {
-
-        // Parameters sent from url
-        // this.routeParams.params.subscribe((params) => {
-        //     this.pluginService.addonUUID = params.pluginID;
-        // });
-        this.pluginService.addonUUID = config.AddonUUID;
-
         // Parameters sent from query url (syntax: ?parmeterName1=parameterValue1&parmeterName2=parameterValue2&)
         this.routeParams.queryParams.subscribe((queryParams) => {
             this.showReset = queryParams.showReset;
@@ -648,7 +641,7 @@ export class PluginComponent implements OnInit, OnDestroy {
                 
                 // Set the tabs (themes map)
                 tabs.set(availableTab.key, {
-                    title: relation.Description || relation.Name,
+                    title: relation.Name || relation.Description,
                     theme: availableTab.theme
                 });
             }

@@ -53,8 +53,8 @@
                                             <div>
                                                 <pep-color
                                                     [label]="(TRANSLATION_PREFIX_KEY + 'EditPrimaryColor_Title') | translate"
-                                                    [value]="getColor(themeObj.userPrimaryColor)"
-                                                    (valueChange)="setColor(themeObj.userPrimaryColor, $event); onValueChanged()">
+                                                    [value]="getColor(pepperiTheme.userPrimaryColor)"
+                                                    (valueChange)="setColor(pepperiTheme.userPrimaryColor, $event); onValueChanged()">
                                                 </pep-color>
                                             </div>
                                         </div>
@@ -78,7 +78,7 @@
                                             <mat-checkbox
                                                 type="checkbox"
                                                 class="flex pep-spacing-element md"
-                                                [checked]="themeObj?.useSecondaryColor"
+                                                [checked]="pepperiTheme?.useSecondaryColor"
                                                 (click)="onUseSecondaryColorClick($event)"
                                             >
                                                 <span class="color-dimmed">{{ 'Themes_Addon_SecondaryColor_UseTitle' | translate }}</span>
@@ -86,15 +86,15 @@
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
-                                <div class="expansion-content secondary-color-content" [ngClass]="{disable: !themeObj?.useSecondaryColor}">
+                                <div class="expansion-content secondary-color-content" [ngClass]="{disable: !pepperiTheme?.useSecondaryColor}">
                                     <div>
                                         <p class="secondary-color-sub-title body-sm" [innerHTML]="'Themes_Addon_SecondaryColor_SubTitle' | translate"></p>
                                         <div class="secondary-color-component">
                                             <div>
                                                 <pep-color 
                                                     [label]="(TRANSLATION_PREFIX_KEY + 'EditSecondaryColor_Title') | translate"
-                                                    [value]="getColor(themeObj.userSecondaryColor)"
-                                                    (valueChange)="setColor(themeObj.userSecondaryColor, $event); onValueChanged()">
+                                                    [value]="getColor(pepperiTheme.userSecondaryColor)"
+                                                    (valueChange)="setColor(pepperiTheme.userSecondaryColor, $event); onValueChanged()">
                                                 </pep-color>
                                             </div>
                                         </div>
@@ -389,15 +389,15 @@
                                                 [label]="(TRANSLATION_PREFIX_KEY + 'SelectTopHeaderColor_Title') | translate"
                                                 [value]="pepperiTheme.topHeaderColor" [options]="colorsWithLegacyOptions" [emptyOption]="false"
                                                 (valueChange)="
-                                                    themeObj.topHeaderColor = $event;
-                                                    themeObj.useTopHeaderColorLegacy = themeObj.topHeaderColor === LEGACY_STRING;
+                                                    pepperiTheme.topHeaderColor = $event;
+                                                    pepperiTheme.useTopHeaderColorLegacy = pepperiTheme.topHeaderColor === LEGACY_STRING;
                                                     onValueChanged();"></pep-select>
                                             </div>
                                             <div>
                                                 <pep-select 
                                                 [label]="(TRANSLATION_PREFIX_KEY + 'SelectTopHeaderStyle_Title') | translate"
-                                                [value]="themeObj.topHeaderStyle" [options]="buttonStylesOptions" [emptyOption]="false"
-                                                (valueChange)="themeObj.topHeaderStyle = $event; onValueChanged();"></pep-select>
+                                                [value]="pepperiTheme.topHeaderStyle" [options]="buttonStylesOptions" [emptyOption]="false"
+                                                (valueChange)="pepperiTheme.topHeaderStyle = $event; onValueChanged();"></pep-select>
                                             </div>
                                         </div>
                                     </div>
@@ -416,8 +416,8 @@
                                             <div>
                                                 <pep-select
                                                 [label]="(TRANSLATION_PREFIX_KEY + 'SelectWeakButtonColor_Title') | translate"
-                                                [value]="themeObj.weakButtonColor" [options]="colorsOptions" [emptyOption]="false"
-                                                (valueChange)="themeObj.weakButtonColor = $event; onValueChanged();"></pep-select>
+                                                [value]="pepperiTheme.weakButtonColor" [options]="colorsOptions" [emptyOption]="false"
+                                                (valueChange)="pepperiTheme.weakButtonColor = $event; onValueChanged();"></pep-select>
                                             </div>
                                         </div>
                                     </div>
@@ -453,8 +453,8 @@
                                             <div>
                                                 <pep-select 
                                                 [label]="(TRANSLATION_PREFIX_KEY + 'SelectStrongButtonColor_Title') | translate"
-                                                [value]="themeObj.strongButtonColor" [options]="colorsOptions" [emptyOption]="false"
-                                                (valueChange)="themeObj.strongButtonColor = $event; onValueChanged();"></pep-select>
+                                                [value]="pepperiTheme.strongButtonColor" [options]="colorsOptions" [emptyOption]="false"
+                                                (valueChange)="pepperiTheme.strongButtonColor = $event; onValueChanged();"></pep-select>
                                             </div>
                                         </div>
                                     </div>
@@ -483,14 +483,14 @@
                                             <div>
                                                 <pep-select 
                                                 [label]="(TRANSLATION_PREFIX_KEY + 'SelectQsButtonColor_Title') | translate"
-                                                [value]="themeObj.qsButtonColor" [options]="colorsOptions" [emptyOption]="false"
-                                                (valueChange)="themeObj.qsButtonColor = $event; onValueChanged();"></pep-select>
+                                                [value]="pepperiTheme.qsButtonColor" [options]="colorsOptions" [emptyOption]="false"
+                                                (valueChange)="pepperiTheme.qsButtonColor = $event; onValueChanged();"></pep-select>
                                             </div>
                                             <div>
                                                 <pep-select 
                                                 [label]="(TRANSLATION_PREFIX_KEY + 'SelectQsButtonStyle_Title') | translate"
-                                                [value]="themeObj.qsButtonStyle" [options]="buttonStylesOptions" [emptyOption]="false"
-                                                (valueChange)="themeObj.qsButtonStyle = $event; onValueChanged();"></pep-select>
+                                                [value]="pepperiTheme.qsButtonStyle" [options]="buttonStylesOptions" [emptyOption]="false"
+                                                (valueChange)="pepperiTheme.qsButtonStyle = $event; onValueChanged();"></pep-select>
                                             </div>
                                         </div>
                                     </div>
@@ -502,7 +502,7 @@
                                                 </span>
                                             </div>
                                             <div class="preview-box-body">
-                                                <pep-quantity-selector [key]="'QsButtonPreview'" [styleType]="themeObj.qsButtonStyle" [value]="'0'"></pep-quantity-selector>
+                                                <pep-quantity-selector [key]="'QsButtonPreview'" [styleType]="pepperiTheme.qsButtonStyle" [value]="'0'"></pep-quantity-selector>
                                             </div>
                                         </div>
                                     </div>
@@ -523,14 +523,14 @@
                                             <div>
                                                 <pep-select 
                                                 [label]="(TRANSLATION_PREFIX_KEY + 'SelectCardSpacing_Title') | translate"
-                                                [value]="themeObj.cardGutterSize" [options]="cardFontGutterOptions" [emptyOption]="false"
-                                                (valueChange)="themeObj.cardGutterSize = $event; onValueChanged();"></pep-select>
+                                                [value]="pepperiTheme.cardGutterSize" [options]="cardFontGutterOptions" [emptyOption]="false"
+                                                (valueChange)="pepperiTheme.cardGutterSize = $event; onValueChanged();"></pep-select>
                                             </div>
                                             <div>
                                                 <pep-select 
                                                 [label]="(TRANSLATION_PREFIX_KEY + 'SelectCardShadow_Title') | translate"
-                                                [value]="themeObj.cardShadow" [options]="cardShadowOptions" [emptyOption]="false"
-                                                (valueChange)="themeObj.cardShadow = $event; onValueChanged();"></pep-select>
+                                                [value]="pepperiTheme.cardShadow" [options]="cardShadowOptions" [emptyOption]="false"
+                                                (valueChange)="pepperiTheme.cardShadow = $event; onValueChanged();"></pep-select>
                                             </div>
                                         </div>
                                     </div>
@@ -710,7 +710,7 @@
                     </div>
 
                     <div class="mat-grid-tile">
-                        <pep-quantity-selector [key]="'QsInCardPreview'" [value]="'0'"  [styleType]="themeObj.qsButtonStyle"
+                        <pep-quantity-selector [key]="'QsInCardPreview'" [value]="'0'"  [styleType]="pepperiTheme.qsButtonStyle"
                             [rowSpan]="2" [layoutType]="'card'"></pep-quantity-selector>
                     </div>
                 </div>
