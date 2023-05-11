@@ -543,21 +543,15 @@
                     </div>
                 </mat-tab>
 
-                <mat-tab *ngFor="let addonTab of tabs$ | async | keyvalue;" >
-                    <!-- {{ addonTab.key }} {{ addonTab.value}} -->
-                    <ng-template mat-tab-label>
-                        <span class="body-md">
-                            {{ addonTab.value.title}}
-                        </span>
+                <mat-tab *ngFor="let addonTab of tabs$ | async | keyvalue;" [label]="addonTab.value.title">
+                    <ng-template matTabContent>
+                        <div class="addon-theme-content">
+                            <addon-tab [tabKey]="addonTab.key" 
+                                [remoteOptions]="tabsRemoteLoaderOptionsMap.get(addonTab.key)"
+                                [theme]="addonTab.value.theme"
+                                (themeChange)="onAddonThemeValueChange($event)"></addon-tab>
+                        </div>
                     </ng-template>
-                    <div class="addon-theme-content">
-                        <pep-remote-loader-element *ngIf="tabsRemoteLoaderOptionsMap.has(addonTab.key)" class="remote-loader"
-                            [options]="tabsRemoteLoaderOptionsMap.get(addonTab.key)"
-                            [props]="{ hostObject: addonTab.value.theme }"
-                            [events]="{ hostEvents: onTabHostEventsCallback }"
-                            (load)="onTabLoad(addonTab.key, $event)">
-                        </pep-remote-loader-element>
-                    </div>
                 </mat-tab>
             </mat-tab-group>
         </div>

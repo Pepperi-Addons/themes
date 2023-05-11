@@ -1,0 +1,6 @@
+<pep-remote-loader-element class="remote-loader"
+    [options]="remoteOptions"
+    [props]="{ hostObject: theme }"
+    [events]="{ hostEvents: onTabHostEventsCallback }"
+    (load)="onTabLoad($event)">
+</pep-remote-loader-element>

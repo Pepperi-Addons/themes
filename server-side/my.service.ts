@@ -354,7 +354,7 @@ class MyService {
             }
             
             res.push({
-                key: at.relation.Key,
+                key: at.relation.AddonUUID,
                 relation: at.relation,
                 addonPublicBaseURL: at.addonPublicBaseURL,
                 theme: addonTheme,
@@ -397,7 +397,7 @@ class MyService {
         }
         
         // Create the object if not exist.
-        if (!themeObj) {
+        if (!addonTheme) {
             addonTheme = {
                 Key: themeKey,
                 publishedThemeObj: null,
@@ -406,7 +406,7 @@ class MyService {
         }
 
         // Set the unPublishedThemeObj
-        addonTheme.unPublishedThemeObj = themeObj.Theme;
+        addonTheme['unPublishedThemeObj'] = themeObj.Theme;
         
         res = await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(addonTheme);
             

@@ -90,11 +90,6 @@ export class PluginComponent implements OnInit, OnDestroy {
     @ViewChild('publishModalTemplate', { read: TemplateRef }) publishModalTemplate: TemplateRef<any>;
     private dialogRef: MatDialogRef<any> = null;
 
-    tabRelations;
-
-
-    onTabHostEventsCallback: (tabKey: string, event: CustomEvent) => void;
-
     // Data sent from webapp
     @Input() queryParams: any;
     @Input() routerData: any;
@@ -117,10 +112,6 @@ export class PluginComponent implements OnInit, OnDestroy {
         this.routeParams.queryParams.subscribe((queryParams) => {
             this.showReset = queryParams.showReset;
         });
-
-        this.onTabHostEventsCallback = (tabKey: string, event: CustomEvent) => {
-            this.onTabHostEvents(tabKey, event.detail);
-        }
     }
 
     initOptions() {
@@ -515,11 +506,10 @@ export class PluginComponent implements OnInit, OnDestroy {
         this.changeWebappVariables();
     }
 
-    onTabLoad(tabKey: string, event: any) {
-        // TODO:?
-    }
+    async onAddonThemeValueChange(event: { tabKey: string, theme: any }) {
+        const tabKey = event.tabKey;
+        const theme = event.theme;
 
-    async onAddonThemeValueChange(tabKey: string, theme: any) {
         // Save the current addon theme.
         const res = await lastValueFrom(this.pluginService.saveAddonTheme(tabKey, theme));
 
@@ -527,15 +517,6 @@ export class PluginComponent implements OnInit, OnDestroy {
         const currentTab = this._tabsSubject.value.get(tabKey);
         currentTab.theme = theme;
         this._tabsSubject.value.set(tabKey, currentTab);
-    }
-
-    async onTabHostEvents(tabKey: string, event: any) {
-        // Implement editors events.
-        switch(event.action){
-            case 'set-theme':
-                await this.onAddonThemeValueChange(tabKey, event.theme);
-                break;
-        }
     }
 
     loadMenu() {

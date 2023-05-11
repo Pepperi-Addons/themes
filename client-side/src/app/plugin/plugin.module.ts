@@ -5,6 +5,8 @@ import { CommonModule } from '@angular/common';
 // import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { PluginComponent } from './plugin.component';
+import { AddonTabComponent } from './addon-tab/addon-tab.component';
+
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -42,7 +44,10 @@ export const routes: Routes = [
 ];
 
 @NgModule({
-    declarations: [PluginComponent],
+    declarations: [
+        PluginComponent,
+        AddonTabComponent
+    ],
     imports: [
         CommonModule,
         // BrowserModule,
@@ -76,7 +81,10 @@ export const routes: Routes = [
         }),
         RouterModule.forChild(routes),
     ],
-    exports:[PluginComponent],
+    exports:[
+        PluginComponent,
+        AddonTabComponent
+    ],
     providers: [
         TranslateStore,
         PluginService
