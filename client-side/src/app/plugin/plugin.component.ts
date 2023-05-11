@@ -592,7 +592,15 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
 
     private getRemoteEntryByType(remoteBasePath: string, relation: NgComponentRelation) {
-        return `${remoteBasePath}${relation.AddonRelativeURL}.js`;
+        // For devTabs gets the remote entry from the query params.
+        const devTabs = this.pluginService.devTabs;
+        if (devTabs.has(relation.ModuleName)) {
+            return devTabs.get(relation.ModuleName);
+        } else if (devTabs.has(relation.ComponentName)) {
+            return devTabs.get(relation.ComponentName);
+        } else {
+            return `${remoteBasePath}${relation.AddonRelativeURL}.js`;
+        }
     }
 
     private getRemoteLoaderOptions(data: any) {
