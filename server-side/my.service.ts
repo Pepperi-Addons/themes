@@ -212,28 +212,28 @@ class MyService {
         return res;
     }
 
-    private async publishAddonThemeInternal(addonKey: string, addonTheme: ThemesMergedData, message: string): Promise<any> {
+    private async publishAddonThemeInternal(addonKey: string, theme: any, message: string): Promise<any> {
         let res: any = null;
         
         // Save in the new table.
-        if (addonTheme?.theme) {
-            const themeData: any = this.getThemeData(addonKey);
+        if (theme) {
+            const themeData: any = await this.getThemeData(addonKey);
 
             // If the objects are different
-            if (JSON.stringify(addonTheme.theme) !== JSON.stringify(themeData.publishedThemeObj)) {
+            if (JSON.stringify(theme) !== JSON.stringify(themeData.publishedThemeObj)) {
 
                 // Save themes published and unpublished.
                 const addonThemeData: any = {
                     Key: addonKey,
-                    unPublishedThemeObj: addonTheme.theme,
-                    publishedThemeObj: addonTheme.theme,
+                    unPublishedThemeObj: theme,
+                    publishedThemeObj: theme,
                     publishComment: message || ''
                 };
 
                 await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(addonThemeData);
                 
                 // Init the css variables.
-                let cssVariables = addonTheme.theme;
+                let cssVariables = theme;
 
                 // Get the tab relations 
                 const tabRelations: NgComponentRelation[] = await this.getRelations(THEME_TABS_RELATION_NAME);
@@ -257,7 +257,7 @@ class MyService {
                 await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(cssVarsAddonData)
             }
 
-            res = addonTheme.theme;
+            res = theme;
         }
             
         return res;
@@ -332,14 +332,14 @@ class MyService {
     }
     
     async getPepperiTheme(query: any): Promise<any> {
-        const published = query['published'] ?? true;
+        const published = query['published'] === 'true';
         const otherData: any = await this.getThemeData(DATA_OBJECT_KEY);
         return published ? otherData.publishedThemeObj : otherData.unPublishedThemeObj;
     }
 
     async getAddonsThemes(query: any): Promise<any> {
         const res: any[] = [];
-        const published = query['published'] ?? true;
+        const published = query['published'] === 'true';
 
         const addonsThemesData = await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).find();
         const availableTabs = await this.getAvailableTabs();
@@ -366,7 +366,7 @@ class MyService {
 
     async getAddonTheme(query: any): Promise<any> {
         const key = query['key'] || '';
-        const published = query['published'] ?? true;
+        const published = query['published'] === 'true';
         try {
             const otherData: any = await this.getThemeData(key);
             return published ? otherData.publishedThemeObj : otherData.unPublishedThemeObj;
@@ -406,7 +406,7 @@ class MyService {
         }
 
         // Set the unPublishedThemeObj
-        addonTheme['unPublishedThemeObj'] = themeObj.Theme;
+        addonTheme['unPublishedThemeObj'] = themeObj;
         
         res = await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(addonTheme);
             
@@ -452,7 +452,7 @@ class MyService {
         for (let index = 1; index < themes.length; index++) {
             const addonTheme = themes[index];
             if (addonTheme.key) {
-                this.publishAddonThemeInternal(addonTheme.key, addonTheme, message);
+                this.publishAddonThemeInternal(addonTheme.key, addonTheme.theme, message);
             }
         }
 
