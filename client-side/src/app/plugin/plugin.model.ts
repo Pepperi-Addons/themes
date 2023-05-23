@@ -101,9 +101,10 @@ export class ThemeData {
     strongButtonColor = COLORS_TYPE.UserPrimary;
     weakButtonColor = COLORS_TYPE.SystemPrimary;
 
-    useTopHeaderColorLegacy = true;
-    topHeaderColor = ThemeData.LEGACY_STRING;
-    topHeaderStyle: PepStyleType = 'strong';
+    // Legacy properties (this is now implemented in application header addon).
+    // useTopHeaderColorLegacy = true;
+    // topHeaderColor = ThemeData.LEGACY_STRING;
+    // topHeaderStyle: PepStyleType = 'strong';
 
     qsButtonColor = COLORS_TYPE.SystemPrimary;
     qsButtonStyle: PepStyleType = 'regular';

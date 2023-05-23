@@ -420,15 +420,16 @@ export class PluginComponent implements OnInit, OnDestroy {
         this.setStyleButtonColor(themeVariables, PepCustomizationService.COLOR_WEAK_KEY,
             themeObj.weakButtonColor, themeObj.useSecondaryColor);
 
-        if (this.pepperiTheme.useTopHeaderColorLegacy) {
-            themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-h'] = '';
-            themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-s'] = '';
-            themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-l'] = '';
-        } else {
-            this.setStyleButtonColor(themeVariables, PepCustomizationService.COLOR_TOP_HEADER_KEY,
-                themeObj.topHeaderColor, themeObj.useSecondaryColor);
-        }
-        themeVariables[PepCustomizationService.STYLE_TOP_HEADER_KEY] = themeObj.topHeaderStyle;
+        // Legacy code (this is now implemented in application header addon).
+        // if (this.pepperiTheme.useTopHeaderColorLegacy) {
+        //     themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-h'] = '';
+        //     themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-s'] = '';
+        //     themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-l'] = '';
+        // } else {
+        //     this.setStyleButtonColor(themeVariables, PepCustomizationService.COLOR_TOP_HEADER_KEY,
+        //         themeObj.topHeaderColor, themeObj.useSecondaryColor);
+        // }
+        // themeVariables[PepCustomizationService.STYLE_TOP_HEADER_KEY] = themeObj.topHeaderStyle;
 
         this.setStyleButtonColor(themeVariables, PepCustomizationService.COLOR_QS_KEY,
             themeObj.qsButtonColor, themeObj.useSecondaryColor);
