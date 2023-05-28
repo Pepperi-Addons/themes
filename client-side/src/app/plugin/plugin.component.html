@@ -543,6 +543,59 @@
                     </div>
                 </mat-tab>
 
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <span class="body-md">
+                            {{ 'Themes_Addon_Branding_Title' | translate }}
+                        </span>
+                    </ng-template>
+                    <div class="branding-header">
+                        <div class="branding-sub-title">
+                            <p class="body-md" [innerHTML]="'Themes_Addon_Branding_SubTitle' | translate"></p>
+                        </div>
+                    </div>
+                    <div class="branding-content">
+                        <mat-accordion [displayMode]="'flat'" [multi]="true" class="pep-accordion">
+                            
+                            <mat-expansion-panel [expanded]="true">
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{'Themes_Addon_Logo_Title' | translate}}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content ">
+                                    <p class="body-sm ellipsis">{{'Themes_Addon_Logo_Sub_Title' | translate}}</p>
+                                    <p class="body-sm ellipsis">{{'Themes_Addon_Logo_Sub_Title2' | translate}}</p>
+                                    <div>
+                                        <label class="body-xs normal ellipsis">{{'Themes_Addon_Logo_Title' | translate}}</label>
+                                        <div class="assets-btn-cont" [ngStyle]="{'background-image': 'url(' + pepperiTheme?.brandingLogoSrc || '' + ')'}" (click)="onOpenAssetsDialog('brandingLogoSrc');">
+                                            <pep-button sizeType="sm" styleType="regular" [value]="'Themes_Addon_Logo_Open_Assets_Manager' | translate" iconName="system_file_upload_cloud"></pep-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_Favicon_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content">
+                                    <p class="body-sm ellipsis">{{'Themes_Addon_Favicon_Sub_Title' | translate}}</p>
+                                    <p class="body-sm ellipsis">{{'Themes_Addon_Favicon_Sub_Title2' | translate}}</p>
+                                    <div>
+                                        <label class="body-xs normal ellipsis">{{'Themes_Addon_Favicon_Title' | translate}}</label>
+                                        <div class="assets-btn-cont" [ngStyle]="{'background-image': 'url(' + pepperiTheme?.faviconSrc || '' + ')'}" (click)="onOpenAssetsDialog('faviconSrc');">
+                                            <pep-button sizeType="sm" styleType="regular" [value]="'Themes_Addon_Logo_Open_Assets_Manager' | translate" iconName="system_file_upload_cloud"></pep-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
+                    </div>
+                </mat-tab>
+
                 <mat-tab *ngFor="let addonTab of tabs$ | async | keyvalue;" [label]="addonTab.value.title">
                     <ng-template matTabContent>
                         <div class="addon-theme-content">

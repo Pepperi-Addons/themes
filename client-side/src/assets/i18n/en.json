@@ -116,5 +116,14 @@
     "Themes_Addon_ShadowOffset_XL": "XL",
     "Themes_Addon_StyleType_Strong": "Strong",
     "Themes_Addon_StyleType_Regular": "Regular",
-    "Themes_Addon_StyleType_Weak": "Weak"
+    "Themes_Addon_StyleType_Weak": "Weak",
+    "Themes_Addon_Branding_Title": "Branding",
+    "Themes_Addon_Branding_SubTitle": "Here you can add your company logo and customize icons.",
+    "Themes_Addon_Logo_Open_Assets_Manager": "Assets Manager",
+    "Themes_Addon_Logo_Title": "Logo",
+    "Themes_Addon_Logo_Sub_Title": "Upload your company logo, prefearably transparent background",
+    "Themes_Addon_Logo_Sub_Title2": "PNG or SVG works best",
+    "Themes_Addon_Favicon_Title": "Favicon",
+    "Themes_Addon_Favicon_Sub_Title": "Upload your favicon",
+    "Themes_Addon_Favicon_Sub_Title2": "PNG works best"
 }

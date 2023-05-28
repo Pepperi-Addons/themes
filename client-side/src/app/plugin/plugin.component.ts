@@ -1,11 +1,11 @@
-import {Component, ViewEncapsulation, EventEmitter, Input, Output, OnInit, OnDestroy, ViewChild, ElementRef, TemplateRef} from '@angular/core';
+import {Component, ViewEncapsulation, EventEmitter, Input, Output, OnInit, OnDestroy, ViewChild, ElementRef, TemplateRef, ViewContainerRef} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {PluginService} from './plugin.service';
 import {TranslateService} from '@ngx-translate/core';
 import { NgComponentRelation } from "@pepperi-addons/papi-sdk";
 
 import { PepCustomizationService, PepLayoutType, PepStyleType, PepAddonService, PepFileService } from "@pepperi-addons/ngx-lib";
-import { PepRemoteLoaderOptions, PepRemoteLoaderService } from "@pepperi-addons/ngx-lib/remote-loader";
+import { PepAddonBlockLoaderService, PepRemoteLoaderOptions, PepRemoteLoaderService } from "@pepperi-addons/ngx-lib/remote-loader";
 import {
     ThemesMergedData,
     ThemeData,
@@ -97,6 +97,13 @@ export class PluginComponent implements OnInit, OnDestroy {
     @Output() addEditors: EventEmitter<any> = new EventEmitter<any>();
     @Output() notify: EventEmitter<any> = new EventEmitter<any>();
 
+
+    assetsHostObject = {
+        selectionType: 'single',
+        allowedAssetsTypes: 'images',
+        inDialog: true
+    }
+
     constructor(
         private pluginService: PluginService,
         private customizationService: PepCustomizationService,
@@ -106,7 +113,9 @@ export class PluginComponent implements OnInit, OnDestroy {
         private translate: TranslateService,
         private remoteLoaderService: PepRemoteLoaderService,
         private routeParams: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private addonBlockLoaderService: PepAddonBlockLoaderService,
+        private viewContainerRef: ViewContainerRef
     ) {
         // Parameters sent from query url (syntax: ?parmeterName1=parameterValue1&parmeterName2=parameterValue2&)
         this.routeParams.queryParams.subscribe((queryParams) => {
@@ -304,6 +313,9 @@ export class PluginComponent implements OnInit, OnDestroy {
         // Convert assign.
         this.convertAssignToWebappVariables(themeObj, themeVariables);
 
+        // Convert branding.
+        this.convertBrandingToWebappVariables(themeObj, themeVariables);
+
         return themeVariables;
     }
 
@@ -438,6 +450,12 @@ export class PluginComponent implements OnInit, OnDestroy {
         // themeVariables[PepCustomizationService.CARD_FONT_SIZE_KEY] = themeObj.cardFontSize;
         this.setSpacing(themeVariables, themeObj.cardGutterSize);
         this.setShadow(themeVariables, themeObj.cardShadow);
+    }
+
+    convertBrandingToWebappVariables(themeObj, themeVariables) {
+        themeVariables[PepCustomizationService.BRANDING_LOGO_SRC] = themeObj.brandingLogoSrc || '';
+        themeVariables[PepCustomizationService.FAV_ICON_SRC] = themeObj.faviconSrc || '';
+
     }
 
     setStyleButtonColor(themeVariables, colorKey, wantedColor, useSecondaryColor) {
@@ -714,4 +732,25 @@ export class PluginComponent implements OnInit, OnDestroy {
 
         this.dialogRef.close();
     }
+
+    onOpenAssetsDialog(propName: string) {
+        const dialogRef = this.addonBlockLoaderService.loadAddonBlockInDialog({
+            container: this.viewContainerRef,
+            name: 'AssetPicker',
+            hostObject: this.assetsHostObject,
+            hostEventsCallback: (event) => { this.onAssetsHostEventChange(propName, event, dialogRef); }
+        });
+    }
+
+
+    private onAssetsHostEventChange(propName: string, event: any, dialogRef) {
+        this.pepperiTheme[propName] = event?.url || '';
+
+        if (dialogRef) {
+            dialogRef.close(null);
+        }
+
+        this.onValueChanged();
+    }
+
 }

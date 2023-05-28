@@ -1,3 +1,6 @@
+@use '@pepperi-addons/ngx-lib/src/core/style/abstracts/variables' as variables;
+@use '@pepperi-addons/ngx-lib/src/core/style/abstracts/functions' as functions;
+
 #pluginBody {
     &.limit-max-width {
         max-width: 896px;
@@ -27,7 +30,8 @@
     .colors-header,
     .fonts-header,
     .styles-header,
-    .assign-header {
+    .assign-header,
+    .branding-header {
         display: -ms-grid;
         display: grid;
         grid-template-columns: 6fr 4fr;
@@ -294,6 +298,21 @@
     resize: none;
     width: 510px;
     height: 94px;
+}
+
+.assets-btn-cont{
+    display: grid;
+    height: 7.5rem;
+    width: 16rem;
+    border-radius: variables.$border-radius-md;
+    background-color: functions.get-pep-color(color-system-primary, color-tran-30);
+    padding: variables.$spacing-lg;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    margin-bottom: variables.$form-spacing;
+    align-items: center;
+    justify-content: center;
 }
 
 ::ng-deep.mat-expansion-panel-header-title {

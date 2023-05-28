@@ -35,6 +35,7 @@ import { PepPageLayoutModule } from '@pepperi-addons/ngx-lib/page-layout';
 import { config } from '../addon.config';
 import { PepRemoteLoaderModule } from '@pepperi-addons/ngx-lib/remote-loader';
 import { PluginService } from './plugin.service';
+import { PepButtonModule } from '@pepperi-addons/ngx-lib/button';
 
 export const routes: Routes = [
     {
@@ -61,6 +62,7 @@ export const routes: Routes = [
         MatCheckboxModule,
         MatFormFieldModule,
         ReactiveFormsModule,
+        PepButtonModule,
         PepDialogModule,
         PepIconModule,
         PepCheckboxModule,

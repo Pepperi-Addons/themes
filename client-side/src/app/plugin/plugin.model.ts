@@ -112,6 +112,9 @@ export class ThemeData {
     // cardFontSize;
     cardGutterSize = SPACING_SIZE_TYPE.Small;
     cardShadow = SHADOW_OFFSET_TYPE.Medium;
+
+    brandingLogoSrc = '';
+    faviconSrc = '';
 }
 
 export class ThemesMergedData {
