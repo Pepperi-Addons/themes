@@ -300,19 +300,19 @@
     height: 94px;
 }
 
-.assets-btn-cont{
-    display: grid;
-    height: 7.5rem;
+.assets-btn-container {
     width: 16rem;
-    border-radius: variables.$border-radius-md;
-    background-color: functions.get-pep-color(color-system-primary, color-tran-30);
-    padding: variables.$spacing-lg;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
-    margin-bottom: variables.$form-spacing;
-    align-items: center;
-    justify-content: center;
+    // display: grid;
+    // height: 7.5rem;
+    // border-radius: variables.$border-radius-md;
+    // background-color: functions.get-pep-color(color-system-primary, color-tran-30);
+    // padding: variables.$spacing-lg;
+    // background-repeat: no-repeat;
+    // background-size: contain;
+    // background-position: center;
+    // margin-bottom: variables.$form-spacing;
+    // align-items: center;
+    // justify-content: center;
 }
 
 ::ng-deep.mat-expansion-panel-header-title {

@@ -36,6 +36,7 @@ import { config } from '../addon.config';
 import { PepRemoteLoaderModule } from '@pepperi-addons/ngx-lib/remote-loader';
 import { PluginService } from './plugin.service';
 import { PepButtonModule } from '@pepperi-addons/ngx-lib/button';
+import { PepImageModule } from '@pepperi-addons/ngx-lib/image';
 
 export const routes: Routes = [
     {
@@ -65,6 +66,7 @@ export const routes: Routes = [
         PepButtonModule,
         PepDialogModule,
         PepIconModule,
+        PepImageModule,
         PepCheckboxModule,
         PepColorModule,
         PepMenuModule,

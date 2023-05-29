@@ -180,11 +180,11 @@ export class PluginComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.translate.get('Themes_Addon_Title').toPromise().finally(
-            () => {
+            async () => {
                 this.initOptions();
                 this.loadMenu();
-                this.loadPepperiThemeObject(false);
-                this.loadTabsThemeData(false);
+                await this.loadPepperiThemeObject(false);
+                await this.loadTabsThemeData(false);
             }
         )
     }
@@ -453,9 +453,8 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
 
     convertBrandingToWebappVariables(themeObj, themeVariables) {
-        themeVariables[PepCustomizationService.BRANDING_LOGO_SRC] = themeObj.brandingLogoSrc || '';
-        themeVariables[PepCustomizationService.FAV_ICON_SRC] = themeObj.faviconSrc || '';
-
+        themeVariables[PepCustomizationService.BRANDING_LOGO_SRC] = themeObj.brandingLogoSrc;
+        themeVariables[PepCustomizationService.FAV_ICON_SRC] = themeObj.faviconSrc;
     }
 
     setStyleButtonColor(themeVariables, colorKey, wantedColor, useSecondaryColor) {
@@ -593,21 +592,23 @@ export class PluginComponent implements OnInit, OnDestroy {
         linkElement.click();
     }
 
-    async loadPepperiThemeObject(publishedObject: boolean, successCallback = null, errorCallback = null) {
+    async loadPepperiThemeObject(publishedObject: boolean) {
         // Get pepperi theme
-        const res = await lastValueFrom(this.pluginService.getPepperiTheme(publishedObject));
-
-        this.pepperiTheme = res;
+        this.pepperiTheme = await lastValueFrom(this.pluginService.getPepperiTheme(publishedObject));
 
         if (!this.pepperiTheme) {
-            this.loadDefaultThemeData();
+            this.pepperiTheme = new ThemeData();
+        }
+
+        // Set the default values for the logo's if needed.
+        if (!this.pepperiTheme.hasOwnProperty('brandingLogoSrc')) {
+            this.pepperiTheme.brandingLogoSrc = '/assets/images/Pepperi-Logo-HiRes.png';
+        }
+        if (!this.pepperiTheme.hasOwnProperty('faviconSrc')) {
+            this.pepperiTheme.faviconSrc = '/assets/favicon.ico';
         }
 
         this.loadThemeUI();
-
-        if (successCallback) {
-            successCallback(res);
-        }
     }
 
     private getRemoteEntryByType(remoteBasePath: string, relation: NgComponentRelation) {
@@ -632,7 +633,7 @@ export class PluginComponent implements OnInit, OnDestroy {
         return remoteLoaderOptions;
     }
 
-    async loadTabsThemeData(publishedObject: boolean, successCallback = null) {
+    async loadTabsThemeData(publishedObject: boolean) {
         // Get the rest tabs (addons themes).
         const availableTabs = await lastValueFrom(this.pluginService.getAddonsThemes(publishedObject));
         const tabs = new Map<string, IAddonTab>();
@@ -657,28 +658,19 @@ export class PluginComponent implements OnInit, OnDestroy {
 
         // Set the subject for update all the lisiners (tabs)
         this._tabsSubject.next(tabs);
-
-        if (successCallback) {
-            successCallback(availableTabs);
-        }
     }
 
-    loadDefaultThemeData() {
-        this.pepperiTheme = new ThemeData();
-    }
-
-    resetPlugin() {
+    async resetPlugin() {
         // Reset all saved UI data
-        this.loadPepperiThemeObject(true, async (res) => {
-            await lastValueFrom(this.pluginService.savePepperiTheme(this.pepperiTheme));
-        });
+        await this.loadPepperiThemeObject(true);
+        await lastValueFrom(this.pluginService.savePepperiTheme(this.pepperiTheme));
+        
+        await this.loadTabsThemeData(true);
 
-        this.loadTabsThemeData(true, async (res) => {
-            // Reset all the tabs that has changes to the value before the changes. (for all addons array)
-            this._tabsSubject.value.forEach(async (value: IAddonTab, key: string) => {
-                const theme = value.theme || null;
-                await lastValueFrom(this.pluginService.saveAddonTheme(key, theme));
-            });
+        // Reset all the tabs that has changes to the value before the changes. (for all addons array)
+        this._tabsSubject.value.forEach(async (value: IAddonTab, key: string) => {
+            const theme = value.theme || null;
+            await lastValueFrom(this.pluginService.saveAddonTheme(key, theme));
         });
     }
 
@@ -734,6 +726,8 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
 
     onOpenAssetsDialog(propName: string) {
+        // delete this.pepperiTheme[propName];
+        // this.onValueChanged();
         const dialogRef = this.addonBlockLoaderService.loadAddonBlockInDialog({
             container: this.viewContainerRef,
             name: 'AssetPicker',
@@ -742,15 +736,25 @@ export class PluginComponent implements OnInit, OnDestroy {
         });
     }
 
-
     private onAssetsHostEventChange(propName: string, event: any, dialogRef) {
-        this.pepperiTheme[propName] = event?.url || '';
-
-        if (dialogRef) {
-            dialogRef.close(null);
+        if (event.action === 'on-save') {
+            this.pepperiTheme[propName] = event?.url || '';
+    
+            if (dialogRef) {
+                dialogRef.close(null);
+            }
+    
+            this.onValueChanged();
         }
-
-        this.onValueChanged();
+        else if (event.action === 'on-cancel') {
+            if (dialogRef) {
+                dialogRef.close(null);
+            }
+        }
     }
 
+    async onDeleteAsset(propName: string) {
+        this.pepperiTheme[propName] = '';
+        await this.onValueChanged();
+    }
 }
