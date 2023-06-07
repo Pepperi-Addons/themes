@@ -608,7 +608,12 @@
                     </div>
                 </mat-tab>
 
-                <mat-tab *ngFor="let addonTab of tabs$ | async | keyvalue;" [label]="addonTab.value.title">
+                <mat-tab *ngFor="let addonTab of tabs$ | async | keyvalue;">
+                    <ng-template mat-tab-label>
+                        <span class="body-md">
+                            {{ addonTab.value.title }}
+                        </span>
+                    </ng-template>
                     <ng-template matTabContent>
                         <div class="addon-theme-content">
                             <addon-tab [tabKey]="addonTab.key" 
