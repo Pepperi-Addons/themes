@@ -11,7 +11,7 @@ export async function load(configuration: any) {
         let res: any = null;
 
         const service = new ThemesService();
-        res = await service.getThemeCssVariables(data.Key, data.client);
+        res = await service.getThemePublishedObject('cssVariables', data.client);
         return res;
     });
 
@@ -24,7 +24,7 @@ router.get("/themes/:key", async (req, res) => {
         // const themeKey = req.query['key']?.toString();
         console.log("CPISide - GET theme with query params (theme key)");
         const service = new ThemesService();
-        result = await service.getThemeCssVariables(req.params.key);
+        result = await service.getThemePublishedObject(req.params.key);
 
     } catch(exception) {
         // Handle exception.

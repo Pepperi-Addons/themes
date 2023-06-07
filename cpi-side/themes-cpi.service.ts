@@ -43,7 +43,7 @@ class ThemesService {
         return result;
     }
     
-    async getThemeCssVariables(key: string = '', client: IClient | undefined = undefined): Promise<any> {
+    async getThemePublishedObject(key: string = '', client: IClient | undefined = undefined): Promise<any> {
         let result = {};
         const isSyncInstalled = await this.isSyncInstalled();
 
@@ -63,7 +63,7 @@ class ThemesService {
             result = temp.ok ? await(temp.json()) : null;
         }
 
-        this.getObjectFromPropertiesPath(result, key)
+        result = this.getObjectFromPropertiesPath(result, key);
 
         return result;
     }
