@@ -313,9 +313,6 @@ export class PluginComponent implements OnInit, OnDestroy {
         // Convert assign.
         this.convertAssignToWebappVariables(themeObj, themeVariables);
 
-        // Convert branding.
-        this.convertBrandingToWebappVariables(themeObj, themeVariables);
-
         return themeVariables;
     }
 
@@ -450,11 +447,6 @@ export class PluginComponent implements OnInit, OnDestroy {
         // themeVariables[PepCustomizationService.CARD_FONT_SIZE_KEY] = themeObj.cardFontSize;
         this.setSpacing(themeVariables, themeObj.cardGutterSize);
         this.setShadow(themeVariables, themeObj.cardShadow);
-    }
-
-    convertBrandingToWebappVariables(themeObj, themeVariables) {
-        themeVariables[PepCustomizationService.BRANDING_LOGO_SRC] = themeObj.brandingLogoSrc;
-        themeVariables[PepCustomizationService.FAV_ICON_SRC] = themeObj.faviconSrc;
     }
 
     setStyleButtonColor(themeVariables, colorKey, wantedColor, useSecondaryColor) {
@@ -650,7 +642,7 @@ export class PluginComponent implements OnInit, OnDestroy {
                 
                 // Set the tabs (themes map)
                 tabs.set(availableTab.key, {
-                    title: relation.Name || relation.Description,
+                    title: relation.Description || relation.Name,
                     theme: availableTab.theme
                 });
             }
@@ -705,6 +697,20 @@ export class PluginComponent implements OnInit, OnDestroy {
 
         pepperiTheme.theme = this.pepperiTheme;
         pepperiTheme.cssVariables = this.convertToCssVariables(this.pepperiTheme);
+
+        // *********************************************************************
+        //      Convert to other Properties (not css variables) - START
+        // *********************************************************************
+
+        // Convert branding.
+        pepperiTheme.branding = {
+            logoSrc: this.pepperiTheme.brandingLogoSrc,
+            faviconSrc: this.pepperiTheme.faviconSrc
+        }
+        
+        // *********************************************************************
+        //      Convert to other Properties (not css variables) - END
+        // *********************************************************************
 
         tabsData.push(pepperiTheme);
 

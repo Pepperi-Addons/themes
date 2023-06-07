@@ -121,4 +121,5 @@ export class ThemesMergedData {
     key?: string = '';
     theme: any = null;
     cssVariables?: any = null;
+    branding: any = null;
 }

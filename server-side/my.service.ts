@@ -16,6 +16,7 @@ export interface ThemesMergedData {
     key?: string;
     theme: any;
     cssVariables?: any;
+    branding?: any;
 }
 
 export interface ThemePublishData {
@@ -153,9 +154,9 @@ class MyService {
         return themesData;
     }
 
-    private async getCssVariables(key: string) {
-        const cssVarsData = await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).key(key).get();
-        return cssVarsData.cssVariables;
+    private async getPublishedThemesData(key: string) {
+        const publishedThemesData = await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).key(key).get();
+        return publishedThemesData;
     }
 
     private async getThemesAdditionalDataFromInstalledAddon(): Promise<OldAddonData | null> {
@@ -177,7 +178,7 @@ class MyService {
         return this.papiClient.addons.installedAddons.addonUUID(uuid).get();
     }
 
-    private async publishPepperiTheme(mergedData: ThemesMergedData, message: string): Promise<ThemesMergedData> {
+    private async publishPepperiTheme(mergedData: ThemesMergedData, message: string): Promise<any> {
         let res: any = null;
         // Legacy support
         // ****************************************************************
@@ -196,25 +197,31 @@ class MyService {
             };
 
             await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(otherData);
-            
-            // Save css variables.
-            const cssVarsData = {
-                Key: DATA_OBJECT_KEY,
-                cssVariables: mergedData.cssVariables
-            };
-            await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(cssVarsData)
+
+            let themePublishedObj;
+            try {
+                themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
+            } catch {
+                if (!themePublishedObj) {
+                    themePublishedObj = {
+                        Key: DATA_OBJECT_KEY,
+                    }
+                }
+            }
+
+            // Save css variables and other properties.
+            themePublishedObj['cssVariables'] = mergedData.cssVariables;
+            themePublishedObj['branding'] = mergedData.branding;
+            await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
 
             // Prepare the result.
-            res = otherData;
-            res['cssVariables'] = cssVarsData.cssVariables;
+            res = themePublishedObj;
         }
             
         return res;
     }
 
     private async publishAddonThemeInternal(addonKey: string, theme: any, message: string): Promise<any> {
-        let res: any = null;
-        
         // Save in the new table.
         if (theme) {
             const themeData: any = await this.getThemeData(addonKey);
@@ -231,36 +238,46 @@ class MyService {
                 };
 
                 await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(addonThemeData);
-                
-                // Init the css variables.
-                let cssVariables = theme;
+            }
+        }
+            
+        return theme;
+    }
 
+    private async publishMergedThemesInternal(addonsThemes: Array<{addonKey: string, theme: any}> = []): Promise<any> {
+        let themePublishedObj;
+
+        if (addonsThemes.length > 0) {
+            themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
+    
+            for (let index = 0; index < addonsThemes.length; index++) {
+                const addonThemeObj = addonsThemes[index];
+                
+                // Init the publish object.
+                let addonPublishedTheme = addonThemeObj.theme;
+        
                 // Get the tab relations 
                 const tabRelations: NgComponentRelation[] = await this.getRelations(THEME_TABS_RELATION_NAME);
-                const currentAddonRelation = tabRelations.find(tr => tr.AddonUUID === addonKey);
-
+                const currentAddonRelation = tabRelations.find(tr => tr.AddonUUID === addonThemeObj.addonKey);
+        
                 // Get the data from the addon publish endpoint (in the relation).
                 if (currentAddonRelation?.OnPublishEndpoint?.length > 0) {
                     try {
-                        cssVariables = await this.papiClient.get(`${this.client.BaseURL}/addons/api/${addonKey}/${currentAddonRelation?.OnPublishEndpoint}`);
+                        addonPublishedTheme = await this.papiClient.get(`${this.client.BaseURL}/addons/api/${addonThemeObj.addonKey}/${currentAddonRelation?.OnPublishEndpoint}`);
                     } catch {
                         // Do nothing
                     }
                 }
-
-                // Save the css variables. 
-                const cssVarsAddonData = {
-                    Key: addonKey,
-                    cssVariables: cssVariables
-                };
-
-                await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(cssVarsAddonData)
+        
+                if (currentAddonRelation?.Name) {
+                    themePublishedObj[currentAddonRelation.Name] = addonPublishedTheme;
+                }
             }
-
-            res = theme;
-        }
             
-        return res;
+            await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
+        }
+
+        return themePublishedObj;
     }
 
 	private getLowerCaseHeaders(header: any) 
@@ -324,9 +341,10 @@ class MyService {
 
     async getCssVariablesResultObject(query: any) {
         let result = {};
-        const key = query['key'] || DATA_OBJECT_KEY;
         result['success'] = true;
-        result['resultObject'] = await this.getCssVariables(key);
+        
+        const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
+        result['resultObject'] = themePublishedObj?.cssVariables || {};
         
         return result;
     }
@@ -429,6 +447,7 @@ class MyService {
     }
 
     async publishAddonTheme(body: any, header: any): Promise<any> {
+        let res: any = null;
         const addonTheme = body.Theme;
         const message = body.Message;
 
@@ -437,8 +456,11 @@ class MyService {
 
         // Check if valid
         if (await this.checkIfAddonIsValid(header)) {
-            return this.publishAddonThemeInternal(addonUUID, addonTheme, message);
+            await this.publishAddonThemeInternal(addonUUID, addonTheme, message);
+            res = await this.publishMergedThemesInternal([{ addonKey: addonUUID, theme: addonTheme }]);
         }
+
+        return res;
     }
 
     async publishThemes(body: any): Promise<ThemesMergedData> {
@@ -448,13 +470,17 @@ class MyService {
 
         await this.publishPepperiTheme(themes[0], message);
         
+        const addonsThemes: Array<{addonKey: string, theme: any}> = [];
         // Publish all the rest of the addons themes.
         for (let index = 1; index < themes.length; index++) {
             const addonTheme = themes[index];
             if (addonTheme.key) {
-                this.publishAddonThemeInternal(addonTheme.key, addonTheme.theme, message);
+                await this.publishAddonThemeInternal(addonTheme.key, addonTheme.theme, message);
+                addonsThemes.push({ addonKey: addonTheme.key, theme: addonTheme.theme });
             }
         }
+
+        res = await this.publishMergedThemesInternal(addonsThemes);
 
         return res;
     }
