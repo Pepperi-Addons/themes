@@ -55,14 +55,12 @@ class ThemesService {
             });
             
             if (cssVariablesData.object) {
-                result = (cssVariablesData.object).cssVariables || {};
+                result = (cssVariablesData.object) || {};
             }
         } else {
             // Get the cssVariables data online if sync isn't installed.
-            const temp = await pepperi.papiClient.apiCall("GET", `addons/api/${config.AddonUUID}/themes/css_variables?key=${key}`);
-            const tmpRes = temp.ok ? await(temp.json()) : null;
-
-            result = tmpRes.success ? tmpRes.resultObject || {} : {};
+            const temp = await pepperi.papiClient.apiCall("GET", `addons/api/${config.AddonUUID}/themes/get_published_theme?key=${key}`);
+            result = temp.ok ? await(temp.json()) : null;
         }
 
         this.getObjectFromPropertiesPath(result, key)

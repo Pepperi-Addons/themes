@@ -349,6 +349,11 @@ class MyService {
         return result;
     }
     
+    async getPublishedThemeObject(query: any) {
+        const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
+        return themePublishedObj;
+    }
+    
     async getPepperiTheme(query: any): Promise<any> {
         const published = query['published'] === 'true';
         const otherData: any = await this.getThemeData(DATA_OBJECT_KEY);

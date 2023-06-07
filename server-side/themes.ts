@@ -11,6 +11,16 @@ export async function css_variables(client: Client, request: Request) {
     }
 }
 
+export async function get_published_theme(client: Client, request: Request) {
+    try {
+        const service = new MyService(client);
+        const res = await service.getPublishedThemeObject(request?.query);
+        return res;
+    } catch(err) {
+        throw err;
+    }
+}
+
 export async function get_pepperi_theme(client: Client, request: Request) {
     try {
         const service = new MyService(client);
