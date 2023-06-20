@@ -113,13 +113,6 @@ export class ThemeData {
     cardGutterSize = SPACING_SIZE_TYPE.Small;
     cardShadow = SHADOW_OFFSET_TYPE.Medium;
 
-    brandingLogoSrc = '/assets/images/Pepperi-Logo-HiRes.png';
+    logoSrc = '/assets/images/Pepperi-Logo-HiRes.png';
     faviconSrc = '/assets/favicon.ico';
-}
-
-export class ThemesMergedData {
-    key?: string = '';
-    theme: any = null;
-    cssVariables?: any = null;
-    branding: any = null;
 }

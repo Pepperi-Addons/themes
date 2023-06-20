@@ -568,12 +568,12 @@
                                     <p class="body-sm ellipsis">{{'Themes_Addon_Logo_Sub_Title2' | translate}}</p>
                                     <div class="assets-btn-container" >
                                         <pep-image [label]="'Themes_Addon_Logo_Title' | translate" [rowSpan]="2" [hint]="'upload asset'"
-                                            [src]="pepperiTheme?.brandingLogoSrc || ''" [handleActions]="false" 
-                                            (chooseFile)="onOpenAssetsDialog('brandingLogoSrc');" (fileChange)="onDeleteAsset('brandingLogoSrc')"></pep-image>
+                                            [src]="pepperiTheme?.logoSrc || ''" [handleActions]="false" 
+                                            (chooseFile)="onOpenAssetsDialog('logoSrc');" (fileChange)="onDeleteAsset('logoSrc')"></pep-image>
                                     </div>
                                     <!-- <div>
                                         <label class="body-xs normal ellipsis">{{'Themes_Addon_Logo_Title' | translate}}</label>
-                                        <div class="assets-btn-cont" [ngStyle]="{'background-image': 'url(' + pepperiTheme?.brandingLogoSrc || '' + ')'}" (click)="onOpenAssetsDialog('brandingLogoSrc');">
+                                        <div class="assets-btn-cont" [ngStyle]="{'background-image': 'url(' + pepperiTheme?.logoSrc || '' + ')'}" (click)="onOpenAssetsDialog('logoSrc');">
                                             <pep-button sizeType="sm" styleType="regular" [value]="'Themes_Addon_Logo_Open_Assets_Manager' | translate" iconName="system_file_upload_cloud"></pep-button>
                                         </div>
                                     </div> -->

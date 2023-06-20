@@ -7,7 +7,6 @@ import { NgComponentRelation } from "@pepperi-addons/papi-sdk";
 import { PepCustomizationService, PepLayoutType, PepStyleType, PepAddonService, PepFileService } from "@pepperi-addons/ngx-lib";
 import { PepAddonBlockLoaderService, PepRemoteLoaderOptions, PepRemoteLoaderService } from "@pepperi-addons/ngx-lib/remote-loader";
 import {
-    ThemesMergedData,
     ThemeData,
     FONT_SIZES_TYPE,
     FONT_BODY_TYPE,
@@ -19,9 +18,8 @@ import {
     HslColorData,
     STYLE_TYPE,
 } from './plugin.model';
+import { ThemesMergedData } from 'shared';
 import { IPepMenuItemClickEvent, PepMenuItem } from '@pepperi-addons/ngx-lib/menu';
-
-import { config } from './../addon.config';
 import { MatDialogRef } from '@angular/material/dialog';
 import { PepDialogService } from '@pepperi-addons/ngx-lib/dialog';
 import { BehaviorSubject, lastValueFrom, Observable } from 'rxjs';
@@ -593,8 +591,8 @@ export class PluginComponent implements OnInit, OnDestroy {
         }
 
         // Set the default values for the logo's if needed.
-        if (!this.pepperiTheme.hasOwnProperty('brandingLogoSrc')) {
-            this.pepperiTheme.brandingLogoSrc = '/assets/images/Pepperi-Logo-HiRes.png';
+        if (!this.pepperiTheme.hasOwnProperty('logoSrc')) {
+            this.pepperiTheme.logoSrc = '/assets/images/Pepperi-Logo-HiRes.png';
         }
         if (!this.pepperiTheme.hasOwnProperty('faviconSrc')) {
             this.pepperiTheme.faviconSrc = '/assets/favicon.ico';
@@ -704,7 +702,7 @@ export class PluginComponent implements OnInit, OnDestroy {
 
         // Convert branding.
         pepperiTheme.branding = {
-            logoSrc: this.pepperiTheme.brandingLogoSrc,
+            logoSrc: this.pepperiTheme.logoSrc,
             faviconSrc: this.pepperiTheme.faviconSrc
         }
         

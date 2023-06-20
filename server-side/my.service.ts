@@ -1,33 +1,24 @@
-import {PapiClient, InstalledAddon, Relation, AddonDataScheme, AddonData, NgComponentRelation} from '@pepperi-addons/papi-sdk';
-import {Client} from '@pepperi-addons/debug-server';
+import { PapiClient, InstalledAddon, Relation, AddonDataScheme, AddonData, NgComponentRelation } from '@pepperi-addons/papi-sdk';
+import { Client } from '@pepperi-addons/debug-server';
+import { CSS_VARIABLES_TABLE_NAME, DATA_OBJECT_KEY, THEMES_TABLE_NAME, THEME_TABS_RELATION_NAME, ThemesMergedData } from 'shared';
+import semver from 'semver';
+import jwt_decode from "jwt-decode";
 
-export const THEMES_TABLE_NAME = 'Themes';
-export const CSS_VARIABLES_TABLE_NAME = 'CssVariables';
-
-const DATA_OBJECT_KEY = 'themes';
-const THEME_TABS_RELATION_NAME = 'ThemeTabs';
 export interface OldAddonData {
     unPublishedThemeObj: any;
     publishedThemeObj: any;
     publishComment: string;
     webappVariables: any;
 }
-export interface ThemesMergedData {
-    key?: string;
-    theme: any;
-    cssVariables?: any;
-    branding?: any;
-}
-
-export interface ThemePublishData {
-    Theme: any;
-    PublishComment: string;
-}
 
 class MyService {
     papiClient: PapiClient;
     addonUUID: string;
     themesBlockName = 'Plugin';
+
+    distId: string;
+    distUUID: string;
+    wacdbaseurl: string;
 
     constructor(private client: Client) {
         this.addonUUID = client.AddonUUID;
@@ -39,6 +30,12 @@ class MyService {
             addonSecretKey: client.AddonSecretKey,
             actionUUID: client.ActionUUID
         });
+
+        // Save this data for the migration.
+        const decodedToken: any = jwt_decode(client.OAuthAccessToken);
+        this.distId = decodedToken["pepperi.distributorid"];
+        this.distUUID = decodedToken["pepperi.distributoruuid"].toLowerCase();
+        this.wacdbaseurl = decodedToken["pepperi.wacdbaseurl"];
     }
 
     private async createThemesTablesSchemes(): Promise<AddonDataScheme[]> {
@@ -298,6 +295,33 @@ class MyService {
         return true;
     }
 
+    private async saveAddonThemeInternal(themeKey: string, themeObj: any): Promise<AddonData | null> {
+        let res: AddonData | null = null;
+        let addonTheme;
+        
+        try {
+            addonTheme = await this.getThemeData(themeKey); 
+        } catch {
+            // Do noting
+        }
+        
+        // Create the object if not exist.
+        if (!addonTheme) {
+            addonTheme = {
+                Key: themeKey,
+                publishedThemeObj: null,
+                publishComment: '',
+            }; 
+        }
+
+        // Set the unPublishedThemeObj
+        addonTheme['unPublishedThemeObj'] = themeObj;
+        
+        res = await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(addonTheme);
+            
+        return res;
+    }
+
     /***********************************************************************************************/
     /*                                  Public functions
     /***********************************************************************************************/
@@ -409,33 +433,6 @@ class MyService {
         return res;
     }
 
-    private async saveAddonThemeInternal(themeKey: string, themeObj: any): Promise<AddonData | null> {
-        let res: AddonData | null = null;
-        let addonTheme;
-        
-        try {
-            addonTheme = await this.getThemeData(themeKey); 
-        } catch {
-            // Do noting
-        }
-        
-        // Create the object if not exist.
-        if (!addonTheme) {
-            addonTheme = {
-                Key: themeKey,
-                publishedThemeObj: null,
-                publishComment: '',
-            }; 
-        }
-
-        // Set the unPublishedThemeObj
-        addonTheme['unPublishedThemeObj'] = themeObj;
-        
-        res = await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(addonTheme);
-            
-        return res;
-    }
-
     async saveAddonTheme(themeObj, header: any): Promise<AddonData | null> {
         const lowerCaseHeaders = this.getLowerCaseHeaders(header);
         const addonUUID = lowerCaseHeaders["x-pepperi-ownerid"]; // Get the uuid from the X-Pepperi-OwnerID
@@ -489,6 +486,83 @@ class MyService {
 
         return res;
     }
+
+    /***********************************************************************************************/
+    /*                                  Migration functions
+    /***********************************************************************************************/
+
+    private arrayBufferToBase64(buffer) {
+        var binary = '';
+        var bytes = [].slice.call(new Uint8Array(buffer));
+
+        bytes.forEach((b) => binary += String.fromCharCode(b));
+
+        return btoa(binary);
+    };
+
+    private async copyOldFilesToNewLocation() {
+        
+        try {
+            // Download old logo
+            const url = `${this.wacdbaseurl}/wrntyimages/distributors/${this.distId}.jpg`; // test some logo - 'https://cpapi.pepperi.com/wrntyimages/distributors/7779723.jpg';
+            const response = await fetch(url);
+            const buffer = await response.arrayBuffer();
+            const base64Flag = 'data:image/jpeg;base64,';
+            const imageStr = this.arrayBufferToBase64(buffer);
+
+            let body = {
+                Key: "logo.jpg", 
+                Description: "logo",
+                MIME: "image/jpeg",
+                Sync: "Device",
+                URI: base64Flag + imageStr
+            }
+
+            // Upload it to the assets.
+            const assetsAddonUUID = 'ad909780-0c23-401e-8e8e-f514cc4f6aa2';
+            const asset: any = await this.papiClient.addons.api.uuid(assetsAddonUUID).file('api').func('upsert_asset').post('', body);
+            
+            // Set the assets result in the branding object of the themes published and unpublished.
+            if (asset?.URL) {
+                const themeData = await this.getThemeData(DATA_OBJECT_KEY);
+                const branding: any = {};
+                
+                branding['logoSrc'] = asset.URL;
+                themeData.unPublishedThemeObj['logoSrc'] = asset.URL;
+                
+                if (themeData.publishedThemeObj) {
+                    themeData.publishedThemeObj['logoSrc'] = asset.URL;
+                    themeData.publishComment = 'Auto - Copy logo from old place to assets.';
+                }
+                
+                await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(themeData);
+    
+                // Publish with the new branding object.
+                if (themeData.publishedThemeObj) {
+                    const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
+                    themePublishedObj['branding'] = branding;
+                    await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
+                }
+            }
+        } catch (err) {
+            // Do nothing
+        }
+    }
+
+    private async migrateToV2_0_12(fromVersion) {
+        // check if the upgrade is from versions before 2.0.12
+        // 2.0.12 is the version that uses the new files
+        if (fromVersion && semver.lt(fromVersion, '2.0.12')) {
+            // Copy the files from the old location to the new one.
+            await this.copyOldFilesToNewLocation();
+        }
+    }
+
+    // migrate from the old cpi node file approach the the new one
+    async performMigration(fromVersion, toVersion) {
+        await this.migrateToV2_0_12(fromVersion);
+    }
+
 }
 
 export default MyService;

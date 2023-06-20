@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import { PepAddonService, PepHttpService, PepSessionService } from '@pepperi-addons/ngx-lib';
 import { Observable } from 'rxjs';
 import { config } from '../addon.config';
-import { ThemesMergedData } from './plugin.model';
+import { ThemesMergedData } from 'shared';
 
 @Injectable()
 export class PluginService {
