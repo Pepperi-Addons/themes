@@ -19,7 +19,7 @@ export async function uninstall(client: Client, request: Request) {
 export async function upgrade(client: Client, request: Request) {
     try {
         const service = new MyService(client)
-        // await service.createRelationsAndInstallThemes();
+        await service.createRelationsAndInstallThemes();
         await service.performMigration(request.body.FromVersion, request.body.ToVersion);
 
     } catch (err) {

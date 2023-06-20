@@ -549,10 +549,10 @@ class MyService {
         }
     }
 
-    private async migrateToV2_0_12(fromVersion) {
-        // check if the upgrade is from versions before 2.0.12
-        // 2.0.12 is the version that uses the new files
-        if (fromVersion && semver.lt(fromVersion, '2.0.12')) {
+    private async migrateToV2_0_13(fromVersion) {
+        // check if the upgrade is from versions before 2.0.13
+        // 2.0.13 is the version that uses the new files
+        if (fromVersion && semver.lt(fromVersion, '2.0.13')) {
             // Copy the files from the old location to the new one.
             await this.copyOldFilesToNewLocation();
         }
@@ -560,7 +560,7 @@ class MyService {
 
     // migrate from the old cpi node file approach the the new one
     async performMigration(fromVersion, toVersion) {
-        await this.migrateToV2_0_12(fromVersion);
+        await this.migrateToV2_0_13(fromVersion);
     }
 
 }
