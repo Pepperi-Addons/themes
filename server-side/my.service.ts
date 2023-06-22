@@ -3,6 +3,10 @@ import { Client } from '@pepperi-addons/debug-server';
 import { CSS_VARIABLES_TABLE_NAME, DATA_OBJECT_KEY, THEMES_TABLE_NAME, THEME_TABS_RELATION_NAME, ThemesMergedData } from 'shared';
 import semver from 'semver';
 import jwt_decode from "jwt-decode";
+// const fs = require('fs');
+const util = require('util');
+import fs from 'fs';
+
 
 export interface OldAddonData {
     unPublishedThemeObj: any;
@@ -500,38 +504,87 @@ class MyService {
         return btoa(binary);
     };
 
-    private async copyOldFilesToNewLocation() {
-        
+    private async getLogoAsset() {
         try {
             // Download old logo
-            const url = `${this.wacdbaseurl}/wrntyimages/distributors/${this.distId}.jpg`; // test some logo - 'https://cpapi.pepperi.com/wrntyimages/distributors/7779723.jpg';
-            const response = await fetch(url);
-            const buffer = await response.arrayBuffer();
-            const base64Flag = 'data:image/jpeg;base64,';
-            const imageStr = this.arrayBufferToBase64(buffer);
+            const url = `${this.wacdbaseurl}/wrntyimages/distributors/${this.distId}.jpg`; // test some logo - 'https://cpapi.pepperi.com/wrntyimages/distributors/117779723.jpg';
+            let response = await fetch(url);
+            const base64Prefix = 'data:image/jpeg;base64,';
+            let buffer;
+
+            if (response?.status === 200) {
+                buffer = await response.arrayBuffer();
+            } else { 
+                // Take default logo if something is wrong.
+                const data = await fs.promises.readFile('images/logo.png');
+                buffer = Buffer.from(data);
+            }
+            
+            const base64String = this.arrayBufferToBase64(buffer);
 
             let body = {
                 Key: "logo.jpg", 
                 Description: "logo",
                 MIME: "image/jpeg",
                 Sync: "Device",
-                URI: base64Flag + imageStr
+                URI: base64Prefix + base64String
             }
 
             // Upload it to the assets.
             const assetsAddonUUID = 'ad909780-0c23-401e-8e8e-f514cc4f6aa2';
             const asset: any = await this.papiClient.addons.api.uuid(assetsAddonUUID).file('api').func('upsert_asset').post('', body);
+            return asset ? { key: asset.Key, url: asset.URL } : null;
+        } catch (err) {
+            // Do nothing
+        }
+
+        return null;
+    }
+
+    private async getFaviconAsset() {
+        try {
+            // Take default favicon.
+            const data = await fs.promises.readFile('images/favicon.ico');
+            const buffer = Buffer.from(data);
+            const base64Prefix = 'data:image/jpeg;base64,';
+            const base64String = this.arrayBufferToBase64(buffer);
+
+            let body = {
+                Key: "favicon.jpg", 
+                Description: "favicon",
+                MIME: "image/jpeg",
+                Sync: "Device",
+                URI: base64Prefix + base64String
+            }
+
+            // Upload it to the assets.
+            const assetsAddonUUID = 'ad909780-0c23-401e-8e8e-f514cc4f6aa2';
+            const asset: any = await this.papiClient.addons.api.uuid(assetsAddonUUID).file('api').func('upsert_asset').post('', body);
+            return asset ? { key: asset.Key, url: asset.URL } : null;
+        } catch (err) {
+            // Do nothing
+        }
+
+        return null;
+    }
+
+    private async copyOldFilesToNewLocation() {
+        
+        try {
+            // Download old logo
+            const logoAsset = await this.getLogoAsset();
+            const faviconAsset = await this.getFaviconAsset();
             
             // Set the assets result in the branding object of the themes published and unpublished.
-            if (asset?.URL) {
+            if (logoAsset && faviconAsset) {
                 const themeData = await this.getThemeData(DATA_OBJECT_KEY);
-                const branding: any = {};
                 
-                branding['logoSrc'] = asset.URL;
-                themeData.unPublishedThemeObj['logoSrc'] = asset.URL;
+                themeData.unPublishedThemeObj['logoAsset'] = logoAsset;
+                themeData.unPublishedThemeObj['faviconAsset'] = faviconAsset;
                 
                 if (themeData.publishedThemeObj) {
-                    themeData.publishedThemeObj['logoSrc'] = asset.URL;
+                    themeData.publishedThemeObj['logoAsset'] = logoAsset;
+                    themeData.publishedThemeObj['faviconAsset'] = faviconAsset;
                     themeData.publishComment = 'Auto - Copy logo from old place to assets.';
                 }
                 
@@ -540,6 +593,10 @@ class MyService {
                 // Publish with the new branding object.
                 if (themeData.publishedThemeObj) {
                     const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
+                    const branding: any = {
+                        logoAssetKey: logoAsset.key,
+                        faviconAssetKey: faviconAsset.key
+                    };
                     themePublishedObj['branding'] = branding;
                     await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
                 }

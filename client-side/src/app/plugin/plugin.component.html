@@ -568,8 +568,8 @@
                                     <p class="body-sm ellipsis">{{'Themes_Addon_Logo_Sub_Title2' | translate}}</p>
                                     <div class="assets-btn-container" >
                                         <pep-image [label]="'Themes_Addon_Logo_Title' | translate" [rowSpan]="2" [hint]="'upload asset'"
-                                            [src]="pepperiTheme?.logoSrc || ''" [handleActions]="false" 
-                                            (chooseFile)="onOpenAssetsDialog('logoSrc');" (fileChange)="onDeleteAsset('logoSrc')"></pep-image>
+                                            [src]="pepperiTheme?.logoAsset?.url || ''" [handleActions]="false" 
+                                            (chooseFile)="onOpenAssetsDialog('logoAsset');" (fileChange)="onDeleteAsset('logoAsset')"></pep-image>
                                     </div>
                                     <!-- <div>
                                         <label class="body-xs normal ellipsis">{{'Themes_Addon_Logo_Title' | translate}}</label>
@@ -591,8 +591,8 @@
                                     <p class="body-sm ellipsis">{{'Themes_Addon_Favicon_Sub_Title2' | translate}}</p>
                                     <div class="assets-btn-container" >
                                         <pep-image [label]="'Themes_Addon_Favicon_Title' | translate" [rowSpan]="2" [hint]="'upload asset'"
-                                            [src]="pepperiTheme?.faviconSrc || ''" [handleActions]="false" 
-                                            (chooseFile)="onOpenAssetsDialog('faviconSrc');" (fileChange)="onDeleteAsset('faviconSrc')"></pep-image>
+                                            [src]="pepperiTheme?.faviconAsset?.url || ''" [handleActions]="false" 
+                                            (chooseFile)="onOpenAssetsDialog('faviconAsset');" (fileChange)="onDeleteAsset('faviconAsset')"></pep-image>
                                     </div>
                                     <!-- <div>
                                         <label class="body-xs normal ellipsis">{{'Themes_Addon_Favicon_Title' | translate}}</label>

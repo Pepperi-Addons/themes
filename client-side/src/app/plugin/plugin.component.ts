@@ -591,12 +591,12 @@ export class PluginComponent implements OnInit, OnDestroy {
         }
 
         // Set the default values for the logo's if needed.
-        if (!this.pepperiTheme.hasOwnProperty('logoSrc')) {
-            this.pepperiTheme.logoSrc = '/assets/images/Pepperi-Logo-HiRes.png';
-        }
-        if (!this.pepperiTheme.hasOwnProperty('faviconSrc')) {
-            this.pepperiTheme.faviconSrc = '/assets/favicon.ico';
-        }
+        // if (!this.pepperiTheme.hasOwnProperty('logoSrc')) {
+        //     this.pepperiTheme.logoSrc = '/assets/images/Pepperi-Logo-HiRes.png';
+        // }
+        // if (!this.pepperiTheme.hasOwnProperty('faviconSrc')) {
+        //     this.pepperiTheme.faviconSrc = '/assets/favicon.ico';
+        // }
 
         this.loadThemeUI();
     }
@@ -702,8 +702,8 @@ export class PluginComponent implements OnInit, OnDestroy {
 
         // Convert branding.
         pepperiTheme.branding = {
-            logoSrc: this.pepperiTheme.logoSrc,
-            faviconSrc: this.pepperiTheme.faviconSrc
+            logoAssetKey: this.pepperiTheme.logoAsset?.key,
+            faviconAssetKey: this.pepperiTheme.faviconAsset?.key
         }
         
         // *********************************************************************
@@ -742,7 +742,8 @@ export class PluginComponent implements OnInit, OnDestroy {
 
     private onAssetsHostEventChange(propName: string, event: any, dialogRef) {
         if (event.action === 'on-save') {
-            this.pepperiTheme[propName] = event?.url || '';
+            debugger;
+            this.pepperiTheme[propName] = event ? { key: event.key, url: event.url } : null;
     
             if (dialogRef) {
                 dialogRef.close(null);
