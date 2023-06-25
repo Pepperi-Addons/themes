@@ -29,6 +29,8 @@
                         },
                         "assets": [
                             "src/favicon.ico",
+                            "src/images/favicon.ico",
+                            "src/images/logo.png",
                             "src/assets",
                             {
                                 "glob": "**/*",
