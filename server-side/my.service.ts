@@ -514,10 +514,14 @@ class MyService {
 
             if (response?.status === 200) {
                 buffer = await response.arrayBuffer();
-            } else { 
+            } else {
                 // Take default logo if something is wrong.
-                const data = await fs.promises.readFile('images/logo.png');
-                buffer = Buffer.from(data);
+                // const data = await fs.promises.readFile('images/logo.png');
+                // buffer = Buffer.from(data);
+                response = await fetch(`https://webapp.pepperi.com/V17_16/WebApp_124/assets/images/Pepperi-Logo-HiRes.png`);
+                if (response?.status === 200) {
+                    buffer = await response.arrayBuffer();
+                }
             }
             
             const base64String = this.arrayBufferToBase64(buffer);
@@ -544,8 +548,15 @@ class MyService {
     private async getFaviconAsset() {
         try {
             // Take default favicon.
-            const data = await fs.promises.readFile('images/favicon.ico');
-            const buffer = Buffer.from(data);
+            const response = await fetch(`https://webapp.pepperi.com/favicon.ico`);
+            let buffer;
+            
+            if (response?.status === 200) {
+                buffer = await response.arrayBuffer();
+            }
+
+            // const data = await fs.promises.readFile('images/favicon.ico');
+            // const buffer = Buffer.from(data);
             const base64Prefix = 'data:image/jpeg;base64,';
             const base64String = this.arrayBufferToBase64(buffer);
 
@@ -606,10 +617,10 @@ class MyService {
         }
     }
 
-    private async migrateToV2_0_13(fromVersion) {
-        // check if the upgrade is from versions before 2.0.13
-        // 2.0.13 is the version that uses the new files
-        if (fromVersion && semver.lt(fromVersion, '2.0.13')) {
+    private async migrateToV2_0_16(fromVersion) {
+        // check if the upgrade is from versions before 2.0.16
+        // 2.0.16 is the version that uses the new files
+        if (fromVersion && semver.lt(fromVersion, '2.0.16')) {
             // Copy the files from the old location to the new one.
             await this.copyOldFilesToNewLocation();
         }
@@ -617,7 +628,7 @@ class MyService {
 
     // migrate from the old cpi node file approach the the new one
     async performMigration(fromVersion, toVersion) {
-        await this.migrateToV2_0_13(fromVersion);
+        await this.migrateToV2_0_16(fromVersion);
     }
 
 }
