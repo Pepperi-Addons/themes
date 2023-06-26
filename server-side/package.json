@@ -22,7 +22,6 @@
         "@types/dotenv": "^8.2.0",
         "@types/node": "^10.17.24",
         "@types/node-fetch": "^2.5.7",
-        "node-fetch": "^2.6.0",
         "nodemon": "^2.0.4",
         "rollup": "^2.10.9",
         "rollup-plugin-typescript2": "^0.27.1",
@@ -35,6 +34,7 @@
         "@pepperi-addons/papi-sdk": "^1.43.0",
         "@types/uuid": "^8.3.4",
         "jwt-decode": "^3.1.2",
+        "node-fetch": "^2.6.0",
         "shared": "file:../shared",
         "uuid": "^8.3.2"
     }

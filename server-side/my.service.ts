@@ -540,7 +540,7 @@ class MyService {
             return asset ? { key: asset.Key, url: asset.URL } : null;
         } catch (err) {
             // Do nothing
-            console.log(`Error in getLogoAsset: ${err}`);
+            console.error(`Error in getLogoAsset: ${err}`);
         }
 
         return null;
@@ -575,7 +575,7 @@ class MyService {
             return asset ? { key: asset.Key, url: asset.URL } : null;
         } catch (err) {
             // Do nothing
-            console.log(`Error in getFaviconAsset: ${err}`);
+            console.error(`Error in getFaviconAsset: ${err}`);
         }
 
         return null;
@@ -583,6 +583,7 @@ class MyService {
 
     private async copyOldFilesToNewLocation() {
         console.log('copyOldFilesToNewLocation - enter');
+
         try {
             // Download old logo
             const logoAsset = await this.getLogoAsset();
@@ -615,16 +616,16 @@ class MyService {
                 }
             }
         } catch (err) {
-            console.log(`Error in copyOldFilesToNewLocation: ${err}`);
+            console.error(`Error in copyOldFilesToNewLocation: ${err}`);
             // Do nothing
         }
     }
 
-    private async migrateToV2_0_17(fromVersion) {
-        // check if the upgrade is from versions before 2.0.17
-        // 2.0.17 is the version that uses the new files
-        console.log('semver comperation' + semver.lt(fromVersion, '2.0.17'));
-        if (fromVersion && semver.lt(fromVersion, '2.0.17')) {
+    private async migrateToV2_0_20(fromVersion) {
+        // check if the upgrade is from versions before 2.0.20
+        // 2.0.20 is the version that uses the new files
+        console.log('semver comperation' + semver.lt(fromVersion, '2.0.20') + ' fromVersion: ' + fromVersion);
+        if (fromVersion && semver.lt(fromVersion, '2.0.20')) {
             // Copy the files from the old location to the new one.
             await this.copyOldFilesToNewLocation();
         }
@@ -632,7 +633,7 @@ class MyService {
 
     // migrate from the old cpi node file approach the the new one
     async performMigration(fromVersion, toVersion) {
-        await this.migrateToV2_0_17(fromVersion);
+        await this.migrateToV2_0_20(fromVersion);
     }
 
 }
