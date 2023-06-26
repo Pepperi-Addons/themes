@@ -4,9 +4,9 @@ import { CSS_VARIABLES_TABLE_NAME, DATA_OBJECT_KEY, THEMES_TABLE_NAME, THEME_TAB
 import semver from 'semver';
 import jwt_decode from "jwt-decode";
 // const fs = require('fs');
-const util = require('util');
-import fs from 'fs';
-
+// const util = require('util');
+// import fs from 'fs';
+import fetch from 'node-fetch';
 
 export interface OldAddonData {
     unPublishedThemeObj: any;
@@ -540,6 +540,7 @@ class MyService {
             return asset ? { key: asset.Key, url: asset.URL } : null;
         } catch (err) {
             // Do nothing
+            console.log(`Error in getLogoAsset: ${err}`);
         }
 
         return null;
@@ -574,13 +575,14 @@ class MyService {
             return asset ? { key: asset.Key, url: asset.URL } : null;
         } catch (err) {
             // Do nothing
+            console.log(`Error in getFaviconAsset: ${err}`);
         }
 
         return null;
     }
 
     private async copyOldFilesToNewLocation() {
-        
+        console.log('copyOldFilesToNewLocation - enter');
         try {
             // Download old logo
             const logoAsset = await this.getLogoAsset();
@@ -605,22 +607,24 @@ class MyService {
                 if (themeData.publishedThemeObj) {
                     const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
                     const branding: any = {
-                        logoAssetKey: logoAsset.key,
-                        faviconAssetKey: faviconAsset.key
+                        logoAssetKey: logoAsset?.key || '',
+                        faviconAssetKey: faviconAsset?.key || '',
                     };
                     themePublishedObj['branding'] = branding;
                     await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
                 }
             }
         } catch (err) {
+            console.log(`Error in copyOldFilesToNewLocation: ${err}`);
             // Do nothing
         }
     }
 
-    private async migrateToV2_0_16(fromVersion) {
-        // check if the upgrade is from versions before 2.0.16
-        // 2.0.16 is the version that uses the new files
-        if (fromVersion && semver.lt(fromVersion, '2.0.16')) {
+    private async migrateToV2_0_17(fromVersion) {
+        // check if the upgrade is from versions before 2.0.17
+        // 2.0.17 is the version that uses the new files
+        console.log('semver comperation' + semver.lt(fromVersion, '2.0.17'));
+        if (fromVersion && semver.lt(fromVersion, '2.0.17')) {
             // Copy the files from the old location to the new one.
             await this.copyOldFilesToNewLocation();
         }
@@ -628,7 +632,7 @@ class MyService {
 
     // migrate from the old cpi node file approach the the new one
     async performMigration(fromVersion, toVersion) {
-        await this.migrateToV2_0_16(fromVersion);
+        await this.migrateToV2_0_17(fromVersion);
     }
 
 }
