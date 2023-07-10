@@ -23,6 +23,7 @@ import { IPepMenuItemClickEvent, PepMenuItem } from '@pepperi-addons/ngx-lib/men
 import { MatDialogRef } from '@angular/material/dialog';
 import { PepDialogService } from '@pepperi-addons/ngx-lib/dialog';
 import { BehaviorSubject, lastValueFrom, Observable } from 'rxjs';
+import { stringify } from 'querystring';
 
 
 export interface IAddonTab {
@@ -689,6 +690,7 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
     
     async publishTheme(comment: string) {
+        debugger;
         const tabsData: Array<any> = [];
         // Publish the saved object.
         const pepperiTheme = new ThemesMergedData();
@@ -714,11 +716,11 @@ export class PluginComponent implements OnInit, OnDestroy {
 
         // Publish also for all the other themes that exist in the tabs.
         this._tabsSubject.value.forEach(async (value: IAddonTab, key: string) => {
-            const addonTheme = new ThemesMergedData();
-
             if (value.theme) {
-                addonTheme.key = key;
-                addonTheme.theme = value.theme;
+                const addonTheme = {
+                    key: key,
+                    theme: value.theme
+                };
 
                 tabsData.push(addonTheme);
             }
