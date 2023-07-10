@@ -621,11 +621,11 @@ class MyService {
         }
     }
 
-    private async migrateToV2_0_20(fromVersion) {
-        // check if the upgrade is from versions before 2.0.20
-        // 2.0.20 is the version that uses the new files
-        console.log('semver comperation' + semver.lt(fromVersion, '2.0.20') + ' fromVersion: ' + fromVersion);
-        if (fromVersion && semver.lt(fromVersion, '2.0.20')) {
+    private async migrateToV2_0_22(fromVersion) {
+        // check if the upgrade is from versions before 2.0.22
+        // 2.0.22 is the version that uses the new files
+        console.log('semver comperation' + semver.lt(fromVersion, '2.0.22') + ' fromVersion: ' + fromVersion);
+        if (fromVersion && semver.lt(fromVersion, '2.0.22')) {
             // Copy the files from the old location to the new one.
             await this.copyOldFilesToNewLocation();
         }
@@ -633,7 +633,7 @@ class MyService {
 
     // migrate from the old cpi node file approach the the new one
     async performMigration(fromVersion, toVersion) {
-        await this.migrateToV2_0_20(fromVersion);
+        await this.migrateToV2_0_22(fromVersion);
     }
 
 }
