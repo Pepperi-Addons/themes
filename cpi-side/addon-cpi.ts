@@ -30,7 +30,7 @@ router.get("/themes/:key", async (req, res) => {
         // Handle exception.
     }
 
-    res.json(result);
+    res.json(result || {});
 });
 
 // router.get('/get_theme', async (req, res) => {

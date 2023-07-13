@@ -25,18 +25,14 @@ class ThemesService {
         return isSyncInstalled;
     }
 
-    private async getObjectFromPropertiesPath(obj: any, propertiesPath: any) {
+    private getObjectFromPropertiesPath(obj: any, propertiesPath: any): any {
         let result = obj;
         
         if (propertiesPath?.length > 0) {
             const propsNames = propertiesPath.split('.');
 
             for (let index = 0; index < propsNames.length; index++) {
-                result = result[propsNames[index]];
-                
-                if (result !== undefined && result !== null) {
-                    break;
-                }
+                result = result ? result[propsNames[index]] : null;
             }
         }
         
