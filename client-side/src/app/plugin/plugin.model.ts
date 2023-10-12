@@ -12,6 +12,7 @@ export enum FONT_BODY_TYPE {
     'Inter' = 'Inter',
     'Assistant' = 'Assistant',
     'Work Sans' = 'Work Sans',
+    'Open Sans' = 'Open Sans',
     'Heebo' = 'Heebo',
     'Rubik' = 'Rubik',
     'Crimson Pro' = 'Crimson Pro',

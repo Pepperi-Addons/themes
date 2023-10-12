@@ -29,3 +29,22 @@ export async function publish(client: Client, request: Request): Promise<any> {
         throw err;
     }
 }
+
+export async function themes_variables(client:Client, request: Request): Promise<any> {
+    try {
+        const service = new MyService(client);
+        let res;
+
+        if (request.method === 'POST') {
+            res = service.saveThemesVariables(request.body);
+        } else if (request.method === 'GET') {
+            res = service.getThemesVariables(request.query);
+        } else {
+            throw new Error(`Method ${request.method} is not supported.`);
+        }
+
+        return res;
+    } catch(err) {
+        throw err;
+    }
+}

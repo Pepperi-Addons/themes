@@ -1,6 +1,6 @@
-import { PapiClient, InstalledAddon, Relation, AddonDataScheme, AddonData, NgComponentRelation } from '@pepperi-addons/papi-sdk';
+import { PapiClient, InstalledAddon, Relation, AddonDataScheme, AddonData, NgComponentRelation, FormDataView, FindOptions } from '@pepperi-addons/papi-sdk';
 import { Client } from '@pepperi-addons/debug-server';
-import { CSS_VARIABLES_TABLE_NAME, DATA_OBJECT_KEY, THEMES_TABLE_NAME, THEME_TABS_RELATION_NAME, ThemesMergedData } from 'shared';
+import { CSS_VARIABLES_TABLE_NAME, DATA_OBJECT_KEY, THEMES_TABLE_NAME, THEME_TABS_RELATION_NAME, ThemesMergedData, THEME_FONT_BODY_FIELD_ID } from 'shared';
 import semver from 'semver';
 import jwt_decode from "jwt-decode";
 // const fs = require('fs');
@@ -14,6 +14,8 @@ export interface OldAddonData {
     publishComment: string;
     webappVariables: any;
 }
+
+export const THEMES_VARIABLES_TABLE_NAME = 'ThemesVariables';
 
 class MyService {
     papiClient: PapiClient;
@@ -146,8 +148,8 @@ class MyService {
         await this.upsertRelation(addonBlockRelation);
     }
 
-    private upsertRelation(relation): Promise<any> {
-        return this.papiClient.post('/addons/data/relations', relation);
+    private async upsertRelation(relation): Promise<any> {
+        return await this.papiClient.post('/addons/data/relations', relation);
     }
 
     private async getThemeData(key: string) {
@@ -327,6 +329,90 @@ class MyService {
     }
 
     /***********************************************************************************************/
+    //                              VarSettings functions
+    /************************************************************************************************/
+    
+    private async upsertVarSettingsRelation(): Promise<void> {
+        const title = 'Themes variables'; // The title of the tab in which the fields will appear;
+        const dataView: FormDataView = {
+            Type: 'Form',
+            Context: {
+                Object: {
+                    Resource: "None",
+                    InternalID: 1,
+                },
+                Name: 'Themes variables data view',
+                ScreenSize: 'Tablet',
+                Profile: {
+                    InternalID: 1,
+                    Name: 'MyProfile'
+                }
+            },
+            Fields: [{
+                FieldID: THEME_FONT_BODY_FIELD_ID,
+                Type: 'TextBox',
+                Title: 'External font body options',
+                Mandatory: false,
+                ReadOnly: false,
+                Layout: {
+                    Origin: {
+                        X: 0,
+                        Y: 0
+                    },
+                    Size: {
+                        Width: 1,
+                        Height: 0
+                    }
+                },
+                Style: {
+                    Alignment: {
+                        Horizontal: 'Stretch',
+                        Vertical: 'Stretch'
+                    }
+                }
+            }]
+        };
+        
+        // Create new var settings relation.
+        const varSettingsRelation: Relation = {
+            RelationName: 'VarSettings',
+            Name: THEMES_VARIABLES_TABLE_NAME,
+            Description: 'Set themes variables from var settings',
+            Type: 'AddonAPI',
+            AddonUUID: this.addonUUID,
+            AddonRelativeURL: '/api/themes_variables',
+            Title: title,
+            DataView: dataView
+        };                
+
+        await this.upsertRelation(varSettingsRelation);
+    }
+
+    private async getThemesVariablesInternal(options: FindOptions | undefined = undefined): Promise<any> {
+        // Get the themes variables
+        let themesVariables;
+
+        try {
+            themesVariables = await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_VARIABLES_TABLE_NAME).key(THEMES_VARIABLES_TABLE_NAME).get();
+        } catch {
+            // Declare default.
+            themesVariables = { Key: THEMES_VARIABLES_TABLE_NAME };
+        }
+
+        return themesVariables;
+    }
+    
+    async saveThemesVariables(varSettingsParams: any) {
+        // Save the key on the object for always work on the same object.
+        varSettingsParams['Key'] = THEMES_VARIABLES_TABLE_NAME;
+        return await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_VARIABLES_TABLE_NAME).upsert(varSettingsParams);
+    }
+
+    async getThemesVariables(options: FindOptions | undefined = undefined): Promise<any> {
+        return await this.getThemesVariablesInternal(options);
+    }
+
+    /***********************************************************************************************/
     /*                                  Public functions
     /***********************************************************************************************/
 
@@ -362,6 +448,7 @@ class MyService {
     async createRelationsAndInstallThemes() {
         await this.installTheme();
         await this.upsertSettingsRelation();
+        await this.upsertVarSettingsRelation();
         await this.createThemesTablesSchemes();
 
         await this.upsertThemeDataMigration();

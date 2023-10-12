@@ -18,7 +18,7 @@ import {
     HslColorData,
     STYLE_TYPE,
 } from './plugin.model';
-import { ThemesMergedData } from 'shared';
+import { ThemesMergedData, THEME_FONT_BODY_FIELD_ID } from 'shared';
 import { IPepMenuItemClickEvent, PepMenuItem } from '@pepperi-addons/ngx-lib/menu';
 import { MatDialogRef } from '@angular/material/dialog';
 import { PepDialogService } from '@pepperi-addons/ngx-lib/dialog';
@@ -122,6 +122,19 @@ export class PluginComponent implements OnInit, OnDestroy {
         });
     }
 
+    private paramsToObject(entries) {
+        const result = {}
+        for(const [key, value] of entries) { // each 'entry' is a [key, value] tupple
+          result[key] = value;
+        }
+        return result;
+    }
+
+    getQueryParamsAsObject(): any {
+        const queryParamsAsObject = this.paramsToObject(new URLSearchParams(location.search));
+        return queryParamsAsObject;
+    }
+
     initOptions() {
         // TODO:
         // this.fontHeadingOptions = Object.keys(FONT_BODY_TYPE).map((key) => {
@@ -131,7 +144,15 @@ export class PluginComponent implements OnInit, OnDestroy {
         this.fontBodyOptions = Object.keys(FONT_BODY_TYPE).map((key) => {
             return {key: FONT_BODY_TYPE[key], value: FONT_BODY_TYPE[key]};
         });
-
+        
+        // const urlParams = this.getQueryParamsAsObject();
+        // if (urlParams?.hasOwnProperty('fontBodyOptions')) {
+        //     const fontsToAddArray = JSON.parse(urlParams['fontBodyOptions']);
+        //     fontsToAddArray.forEach(font => {
+        //         this.fontBodyOptions.push({key: font, value: font});
+        //     });
+        // }
+        
         this.fontSizesOptions = Object.keys(FONT_SIZES_TYPE).map((key) => {
             return {key: FONT_SIZES_TYPE[key],
             value: this.translate.instant(this.TRANSLATION_PREFIX_KEY + FONT_SIZES_TYPE[key])};
@@ -184,6 +205,7 @@ export class PluginComponent implements OnInit, OnDestroy {
                 this.loadMenu();
                 await this.loadPepperiThemeObject(false);
                 await this.loadTabsThemeData(false);
+                await this.loadThemeVariables();
             }
         )
     }
@@ -600,6 +622,20 @@ export class PluginComponent implements OnInit, OnDestroy {
         // }
 
         this.loadThemeUI();
+    }
+
+    async loadThemeVariables() {
+        debugger;
+        const settings = await lastValueFrom(this.pluginService.getPepperiThemeVariables());
+
+        // TODO: Load all the fonts body.
+        if (settings?.hasOwnProperty(THEME_FONT_BODY_FIELD_ID)) {
+            const fontsToAddArray = settings[THEME_FONT_BODY_FIELD_ID].split(';');
+            fontsToAddArray.forEach(font => {
+                this.fontBodyOptions.push({key: font, value: font});
+            });
+        }
+        
     }
 
     private getRemoteEntryByType(remoteBasePath: string, relation: NgComponentRelation) {

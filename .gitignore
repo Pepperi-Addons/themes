@@ -12,3 +12,4 @@ server-side/build/**
 server-side/publish/*.js
 publish/
 client-side/.angular/cache/14.0.2/
+shared/build/**

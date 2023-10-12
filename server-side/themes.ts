@@ -73,3 +73,13 @@ export async function publish_themes(client: Client, request: Request) {
         throw err;
     }
 }
+
+export async function get_pepperi_theme_variables(client: Client, request: Request) {
+    try {
+        const service = new MyService(client);
+        const res = await service.getThemesVariables(request?.query);
+        return res;
+    } catch(err) {
+        throw err;
+    }
+}

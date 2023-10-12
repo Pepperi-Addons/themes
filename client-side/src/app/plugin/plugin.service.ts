@@ -96,4 +96,9 @@ export class PluginService {
         const baseUrl = this.getBaseUrl();
         return this.httpService.postHttpCall(`${baseUrl}/publish_themes`, { Message: comment, Themes: mergedData });
     }
+
+    getPepperiThemeVariables(): Observable<any> {
+        const baseUrl = this.getBaseUrl();
+        return this.httpService.getHttpCall(`${baseUrl}/get_pepperi_theme_variables`);
+    }
 }
