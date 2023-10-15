@@ -627,11 +627,13 @@ export class PluginComponent implements OnInit, OnDestroy {
     async loadThemeVariables() {
         const settings = await lastValueFrom(this.pluginService.getPepperiThemeVariables());
 
-        // Load all the fonts body srom the settings.
+        // Load all the fonts body from settings.
         if (settings?.hasOwnProperty(THEME_FONT_BODY_FIELD_ID)) {
             const fontsToAddArray = settings[THEME_FONT_BODY_FIELD_ID].split(';');
             fontsToAddArray.forEach(font => {
-                this.fontBodyOptions.push({key: font, value: font});
+                if (this.pepperiTheme?.bodyFont !== font && !this.fontBodyOptions.some(font => font.key === font)) {
+                    this.fontBodyOptions.push({key: font, value: font});
+                }
             });
         }
         
