@@ -62,8 +62,23 @@ class MyService {
             }
         });
 
+        // Create pages variables table
+        const createThemesVariablesTable = await this.papiClient.addons.data.schemes.post({
+            Name: THEMES_VARIABLES_TABLE_NAME,
+            Type: 'meta_data',
+            Fields: {
+                Key: {
+                    Type: 'String'
+                }
+            },
+            SyncData: {
+                Sync: true
+            }
+        });
+
         promises.push(createThemesTable);
         promises.push(createCssVarsTable);
+        promises.push(createThemesVariablesTable);
         return Promise.all(promises);
     }
 
