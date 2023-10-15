@@ -32,7 +32,6 @@ export class AddonTabComponent implements OnInit {
 
     onTabHostEvents(event: any) {
         // Implement editors events.
-        debugger;
         switch(event.action) {
             case 'set-theme':
                 this.themeChange.emit({ tabKey: this.tabKey, theme: event.theme });

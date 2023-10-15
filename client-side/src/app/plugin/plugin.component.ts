@@ -625,10 +625,9 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
 
     async loadThemeVariables() {
-        debugger;
         const settings = await lastValueFrom(this.pluginService.getPepperiThemeVariables());
 
-        // TODO: Load all the fonts body.
+        // Load all the fonts body srom the settings.
         if (settings?.hasOwnProperty(THEME_FONT_BODY_FIELD_ID)) {
             const fontsToAddArray = settings[THEME_FONT_BODY_FIELD_ID].split(';');
             fontsToAddArray.forEach(font => {
@@ -726,7 +725,6 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
     
     async publishTheme(comment: string) {
-        debugger;
         const tabsData: Array<any> = [];
         // Publish the saved object.
         const pepperiTheme = new ThemesMergedData();
@@ -780,7 +778,6 @@ export class PluginComponent implements OnInit, OnDestroy {
 
     private onAssetsHostEventChange(propName: string, event: any, dialogRef) {
         if (event.action === 'on-save') {
-            debugger;
             this.pepperiTheme[propName] = event ? { key: event.key, url: event.url } : null;
     
             if (dialogRef) {
