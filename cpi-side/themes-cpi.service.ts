@@ -13,8 +13,8 @@ class ThemesService {
 
         try {
             const res = await pepperi.api.adal.getList({
-                addon: 'bb6ee826-1c6b-4a11-9758-40a46acb69c5', // CPI Node addon uuid
-                table: 'addons'
+                addon: '95501678-6687-4fb3-92ab-1155f47f839e', // Themes addon uuid // 'bb6ee826-1c6b-4a11-9758-40a46acb69c5', // CPI Node addon uuid
+                table: 'CssVariables'
             }); 
             
             isSyncInstalled = res?.objects?.length > 0 ? true : false;
