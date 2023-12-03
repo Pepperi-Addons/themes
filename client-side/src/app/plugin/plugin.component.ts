@@ -217,7 +217,9 @@ export class PluginComponent implements OnInit, OnDestroy {
     loadThemeUI() {
         this.changeWebappVariables();
         const domain = this.addonService.getAddonStaticFolder(this.pluginService.addonUUID);
-        this.imageUrl = this.fileService.getAssetsImagesPath(domain, 'sail-away.jpg');
+        // Remove the lib name from the path and use this addon assets path.
+        const libName = '[LIB_NAME]';
+        this.imageUrl = this.fileService.getAssetsImagesPath(domain, 'boat-ride.webp', libName).replace(`${libName}/`, '');
     }
 
     setColor(hslColorData: HslColorData, value) {
