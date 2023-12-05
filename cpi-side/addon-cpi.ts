@@ -33,6 +33,21 @@ router.get("/themes/:key", async (req, res) => {
     res.json(result || {});
 });
 
+router.get("/themes", async (req, res) => {
+    let result = {};
+    
+    try {
+        console.log("CPISide - GET theme (the whole theme object)");
+        const service = new ThemesService();
+        result = await service.getThemePublishedObject();
+
+    } catch(exception) {
+        // Handle exception.
+    }
+
+    res.json(result || {});
+});
+
 // router.get('/get_theme', async (req, res) => {
 //     let resObj = {}
     
