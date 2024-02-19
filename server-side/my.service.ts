@@ -750,10 +750,10 @@ class MyService {
             if (themeData.publishedThemeObj) {
                 const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
                 const header = {
-                    useTopHeaderColorLegacy: themePublishedObj.useTopHeaderColorLegacy,
+                    useTopHeaderColorLegacy: themePublishedObj.useTopHeaderColorLegacy || themeData.publishedThemeObj.useTopHeaderColorLegacy,
                     userLegacyColor: userLegacyColor,
-                    topHeaderColor: themePublishedObj.topHeaderColor,
-                    topHeaderStyle: themePublishedObj.topHeaderStyle,
+                    topHeaderColor: themePublishedObj.topHeaderColor || themeData.publishedThemeObj.topHeaderColor,
+                    topHeaderStyle: themePublishedObj.topHeaderStyle || themeData.publishedThemeObj.topHeaderStyle,
                 }
                 themePublishedObj['header'] = header;
                 
