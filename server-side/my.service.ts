@@ -230,6 +230,7 @@ class MyService {
             // Save css variables and other properties.
             themePublishedObj['cssVariables'] = mergedData.cssVariables;
             themePublishedObj['branding'] = mergedData.branding;
+            themePublishedObj['header'] = mergedData.header;
             await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
 
             // Prepare the result.
@@ -723,6 +724,48 @@ class MyService {
         }
     }
 
+    private async copyLegacyColors() {
+        console.log('copyLegacyColors - enter');
+
+        try {
+            const themeData = await this.getThemeData(DATA_OBJECT_KEY);
+            const brandingUIControl = await this.papiClient.get(`/uicontrols?where=Type='Branding'`);
+            const uiControlData = brandingUIControl[0] ? JSON.parse(brandingUIControl[0].UIControlData) : null;
+
+            let userLegacyColor = uiControlData?.ControlFields.find(f => f.ApiName === 'BrandingMainColor')?.DefaultValue || '#3f673f';
+            let userLegacySecondaryColor = uiControlData?.ControlFields.find(f => f.ApiName === 'BrandingSecondaryColor')?.DefaultValue || '#ffff00';
+            
+            themeData.unPublishedThemeObj['userLegacyColor'] = userLegacyColor;
+            themeData.unPublishedThemeObj['userLegacySecondaryColor'] = userLegacySecondaryColor;
+            
+            if (themeData.publishedThemeObj) {
+                themeData.publishedThemeObj['userLegacyColor'] = userLegacyColor;
+                themeData.publishedThemeObj['userLegacySecondaryColor'] = userLegacySecondaryColor;
+                themeData.publishComment = 'Auto - Copy colors from UI control to theme.';
+            }
+            
+            await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(themeData);
+
+            // Publish with the new colors data.
+            if (themeData.publishedThemeObj) {
+                const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
+                const header = {
+                    useTopHeaderColorLegacy: themePublishedObj.useTopHeaderColorLegacy,
+                    userLegacyColor: userLegacyColor,
+                    topHeaderColor: themePublishedObj.topHeaderColor,
+                    topHeaderStyle: themePublishedObj.topHeaderStyle,
+                }
+                themePublishedObj['header'] = header;
+                
+                await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
+            }
+
+        } catch (err) {
+            console.error(`Error in copyLegacyColors: ${err}`);
+            // Do nothing
+        }
+    }
+
     private async migrateToV2_0_23(fromVersion) {
         // check if the upgrade is from versions before 2.0.23
         // 2.0.23 is the version that uses the new files
@@ -733,9 +776,23 @@ class MyService {
         }
     }
 
+    private async migrateToV2_1_8(fromVersion) {
+        // check if the upgrade is from versions before 2.1.8
+        // 2.1.8 is the version that uses the new files
+        // console.log('semver comperation' + semver.lt(fromVersion, '2.1.8') + ' fromVersion: ' + fromVersion);
+        if (fromVersion && semver.lt(fromVersion, '2.1.8')) {
+            // Copy the legacy colors from the UI control.
+            await this.copyLegacyColors();
+        }
+    }
+
     // migrate from the old cpi node file approach the the new one
-    async performMigration(fromVersion, toVersion) {
-        await this.migrateToV2_0_23(fromVersion);
+    async performMigration(fromVersion, toVersion, upgrade = true) {
+        if (upgrade) {
+            await this.migrateToV2_0_23(fromVersion);
+        }
+
+        await this.migrateToV2_1_8(fromVersion);
     }
 
 }

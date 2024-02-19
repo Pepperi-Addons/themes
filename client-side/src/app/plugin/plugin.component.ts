@@ -226,13 +226,21 @@ export class PluginComponent implements OnInit, OnDestroy {
         const sep = value.indexOf(',') > -1 ? ',' : ' ';
         const hsl = value.substr(4).split(')')[0].split(sep);
 
+        if (!hslColorData) {
+            hslColorData = new HslColorData();
+        }
+
         hslColorData.hue = hsl[0];
         hslColorData.saturation = hsl[1].substr(0, hsl[1].length).trim();
         hslColorData.lightness = hsl[2].substr(0, hsl[2].length).trim();
     }
 
     getColor(hslColorData: HslColorData) {
-        return 'hsl(' + hslColorData.hue + ', ' + hslColorData.saturation + ', ' + hslColorData.lightness + ')';
+        if (hslColorData) {
+            return 'hsl(' + hslColorData.hue + ', ' + hslColorData.saturation + ', ' + hslColorData.lightness + ')';
+        } else {
+            return '';
+        }
     }
 
     // initPepperiColorComponent(dynamicColor, colorKey, colorLabelKey, hslColor, type = ColorType.AnyColor, showAAComplient = true) {
@@ -453,16 +461,17 @@ export class PluginComponent implements OnInit, OnDestroy {
             themeObj.weakButtonColor, themeObj.useSecondaryColor);
 
         // Legacy code (this is now implemented in application header addon).
-        // if (this.pepperiTheme.useTopHeaderColorLegacy) {
-        //     themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-h'] = '';
-        //     themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-s'] = '';
-        //     themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-l'] = '';
-        // } else {
-        //     this.setStyleButtonColor(themeVariables, PepCustomizationService.COLOR_TOP_HEADER_KEY,
-        //         themeObj.topHeaderColor, themeObj.useSecondaryColor);
-        // }
-        // themeVariables[PepCustomizationService.STYLE_TOP_HEADER_KEY] = themeObj.topHeaderStyle;
-
+        if (this.pepperiTheme.useTopHeaderColorLegacy) {
+            themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-h'] = '';
+            themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-s'] = '';
+            themeVariables[PepCustomizationService.COLOR_TOP_HEADER_KEY + '-l'] = '';
+        } else {
+            this.setStyleButtonColor(themeVariables, PepCustomizationService.COLOR_TOP_HEADER_KEY,
+                themeObj.topHeaderColor, themeObj.useSecondaryColor);
+        }
+        themeVariables[PepCustomizationService.STYLE_TOP_HEADER_KEY] = themeObj.topHeaderStyle;
+        // Legacy end here.
+        
         this.setStyleButtonColor(themeVariables, PepCustomizationService.COLOR_QS_KEY,
             themeObj.qsButtonColor, themeObj.useSecondaryColor);
         themeVariables[PepCustomizationService.STYLE_QS_KEY] = themeObj.qsButtonStyle;
@@ -477,6 +486,8 @@ export class PluginComponent implements OnInit, OnDestroy {
 
         if (wantedColor === COLORS_TYPE.SystemPrimary) {
             referenceColorKey = PepCustomizationService.COLOR_SYSTEM_PRIMARY_KEY;
+        } else if (wantedColor === COLORS_TYPE.SystemPrimaryInvert) {
+            referenceColorKey = PepCustomizationService.COLOR_SYSTEM_PRIMARY_INVERT_KEY;
         } else if (wantedColor === COLORS_TYPE.UserPrimary) {
             referenceColorKey = PepCustomizationService.COLOR_USER_PRIMARY_KEY;
         } else if (wantedColor === COLORS_TYPE.UserSecondary) {
@@ -739,6 +750,14 @@ export class PluginComponent implements OnInit, OnDestroy {
         // *********************************************************************
         //      Convert to other Properties (not css variables) - START
         // *********************************************************************
+
+        // Convert legacy colors.
+        pepperiTheme.header = {
+            useTopHeaderColorLegacy: this.pepperiTheme.useTopHeaderColorLegacy,
+            userLegacyColor: this.pepperiTheme.userLegacyColor,
+            topHeaderColor: this.pepperiTheme.topHeaderColor,
+            topHeaderStyle: this.pepperiTheme.topHeaderStyle,
+        }
 
         // Convert branding.
         pepperiTheme.branding = {

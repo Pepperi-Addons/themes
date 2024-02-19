@@ -38,6 +38,7 @@ export enum ROUNDNESS_TYPE {
 
 export enum COLORS_TYPE {
     SystemPrimary = 'ColorType_SystemPrimary',
+    SystemPrimaryInvert = 'ColorType_SystemPrimaryInvert',
     UserPrimary = 'ColorType_UserPrimary',
     UserSecondary = 'ColorType_UserSecondary',
 }
@@ -103,9 +104,11 @@ export class ThemeData {
     weakButtonColor = COLORS_TYPE.SystemPrimary;
 
     // Legacy properties (this is now implemented in application header addon).
-    // useTopHeaderColorLegacy = true;
-    // topHeaderColor = ThemeData.LEGACY_STRING;
-    // topHeaderStyle: PepStyleType = 'strong';
+    useTopHeaderColorLegacy = true;
+    userLegacyColor = new HslColorData('78', '87%', '27%');
+    topHeaderColor = ThemeData.LEGACY_STRING;
+    topHeaderStyle: PepStyleType = 'strong';
+    // Legacy end here.
 
     qsButtonColor = COLORS_TYPE.SystemPrimary;
     qsButtonStyle: PepStyleType = 'regular';

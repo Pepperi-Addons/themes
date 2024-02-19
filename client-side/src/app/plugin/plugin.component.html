@@ -237,6 +237,37 @@
                                     </div>
                                 </div>
                             </mat-expansion-panel>
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
+                                    <mat-panel-title class="ellipsis body-md">
+                                        {{ 'Themes_Addon_LegacyColor_Title' | translate }}
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <div class="expansion-content legacy-color-content">
+                                    <div>
+                                        <p class="legacy-color-sub-title body-sm" [innerHTML]="'Themes_Addon_LegacyColor_SubTitle' | translate"></p>
+
+                                        <div class="legacy-color-component">
+                                            <div>
+                                                <pep-color
+                                                    [label]="(TRANSLATION_PREFIX_KEY + 'EditLegacyColor_Title') | translate"
+                                                    [value]="getColor(pepperiTheme.userLegacyColor)"
+                                                    (valueChange)="setColor(pepperiTheme.userLegacyColor, $event); onValueChanged()">
+                                                </pep-color>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <!-- <ng-container *ngTemplateOutlet="
+                                                buttonsStyleByColorTemplate;
+                                                context: {
+                                                    viewTitle: 'Themes_Addon_LegacyColor_PreviewTitle' | translate,
+                                                    colorClass: 'user-legacy'
+                                                }">
+                                        </ng-container> -->
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
                         </mat-accordion>
                     </div>
                 </mat-tab>
@@ -374,7 +405,7 @@
                     </div>
                     <div class="assign-content">
                         <mat-accordion [displayMode]="'flat'" [multi]="true" class="pep-accordion">
-                            <!-- <mat-expansion-panel [expanded]="true">
+                            <mat-expansion-panel [expanded]="true">
                                 <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
                                     <mat-panel-title class="ellipsis body-md">
                                         {{ 'Themes_Addon_TopHeaderAssign_Title' | translate }}
@@ -402,8 +433,8 @@
                                         </div>
                                     </div>
                                 </div>
-                            </mat-expansion-panel> -->
-                            <mat-expansion-panel [expanded]="true">
+                            </mat-expansion-panel>
+                            <mat-expansion-panel >
                                 <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
                                     <mat-panel-title class="ellipsis body-md">
                                         {{ 'Themes_Addon_WeakAssign_Title' | translate }}

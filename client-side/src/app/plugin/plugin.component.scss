@@ -2,8 +2,14 @@
 @use '@pepperi-addons/ngx-lib/src/core/style/abstracts/functions' as functions;
 
 #pluginBody {
+    height: 100%;
+
     &.limit-max-width {
         max-width: 896px;
+    }
+    
+    .mat-tab-group {
+        height: inherit;
     }
     
     p {
@@ -77,6 +83,7 @@
     // Colors tab
     // ------------------------------------------
     .primary-color-content,
+    .legacy-color-content,
     .secondary-color-content,
     .main-color-content,
     .system-colors-link-content,
@@ -89,6 +96,7 @@
         grid-row-gap: 0.5rem;
 
         .primary-color-sub-title,
+        .legacy-color-sub-title,
         .secondary-color-sub-title,
         .main-color-sub-title,
         .system-colors-link-sub-title,
@@ -98,6 +106,7 @@
         }
 
         .primary-color-component,
+        .legacy-color-component,
         .secondary-color-component,
         .main-color-component,
         .system-colors-link-component,

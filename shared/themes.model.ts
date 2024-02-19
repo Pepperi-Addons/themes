@@ -11,6 +11,7 @@ export class ThemesMergedData {
     theme: any = null;
     cssVariables?: any = null;
     branding?: any = null;
+    header?: any = null;
 }
 
 export interface ThemePublishData {

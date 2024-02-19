@@ -5,6 +5,7 @@ export async function install(client: Client, request: Request) {
     try {
         const service = new MyService(client)
         await service.createRelationsAndInstallThemes();
+        await service.performMigration(request.body.FromVersion, request.body.ToVersion, false);
     } catch (err) {
         throw new Error(`Failed to create ADAL Tables. error - ${err}`);
     }
