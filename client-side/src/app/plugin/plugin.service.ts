@@ -77,10 +77,10 @@ export class PluginService {
     async getPepperiTheme(publishedObject: boolean): Promise<any> {
         const baseUrl = this.getBaseUrl();
         const pepperiTheme = await lastValueFrom(this.httpService.getHttpCall(`${baseUrl}/get_pepperi_theme?published=${publishedObject}`));
-
+        
         if (pepperiTheme?.userLegacyColor?.toString().indexOf('#') === 0) {
             const hslColor = this.colorService.hex2hsl(pepperiTheme.userLegacyColor);
-            pepperiTheme.userLegacyColor = new HslColorData(hslColor.h, hslColor.s, hslColor.l);
+            pepperiTheme.userLegacyColor = new HslColorData(hslColor.h, hslColor.s + "%", hslColor.l + "%");
         }
 
         return pepperiTheme;
