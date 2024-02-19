@@ -776,11 +776,11 @@ class MyService {
         }
     }
 
-    private async migrateToV2_1_8(fromVersion) {
-        // check if the upgrade is from versions before 2.1.8
-        // 2.1.8 is the version that uses the new files
-        // console.log('semver comperation' + semver.lt(fromVersion, '2.1.8') + ' fromVersion: ' + fromVersion);
-        if (fromVersion && semver.lt(fromVersion, '2.1.8')) {
+    private async migrateToV2_1_12(fromVersion) {
+        // check if the upgrade is from versions before 2.1.12
+        // 2.1.12 is the version that uses the new files
+        // console.log('semver comperation' + semver.lt(fromVersion, '2.1.12') + ' fromVersion: ' + fromVersion);
+        if (fromVersion && semver.lt(fromVersion, '2.1.12')) {
             // Copy the legacy colors from the UI control.
             await this.copyLegacyColors();
         }
@@ -792,7 +792,7 @@ class MyService {
             await this.migrateToV2_0_23(fromVersion);
         }
 
-        await this.migrateToV2_1_8(fromVersion);
+        await this.migrateToV2_1_12(fromVersion);
     }
 
 }

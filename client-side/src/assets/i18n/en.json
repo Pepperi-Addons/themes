@@ -24,6 +24,7 @@
     "Themes_Addon_LegacyColor_Title": "Header color",
     "Themes_Addon_LegacyColor_SubTitle": "",
     "Themes_Addon_LegacyColor_PreviewTitle": "Preview Header color and styling",
+    "Themes_Addon_EditLegacyColor_Title": "Select Header color",
     "Themes_Addon_SecondaryColor_Title": "Secondary color",
     "Themes_Addon_SecondaryColor_UseTitle": "Use",
     "Themes_Addon_SecondaryColor_SubTitle": "A secondary color is used to add a second brand color to the theme design. Having a secondary color is optional.<br/>If your brand has more than one color you can add it here.",

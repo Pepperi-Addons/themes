@@ -620,7 +620,7 @@ export class PluginComponent implements OnInit, OnDestroy {
 
     async loadPepperiThemeObject(publishedObject: boolean) {
         // Get pepperi theme
-        this.pepperiTheme = await lastValueFrom(this.pluginService.getPepperiTheme(publishedObject));
+        this.pepperiTheme = await this.pluginService.getPepperiTheme(publishedObject);
 
         if (!this.pepperiTheme) {
             this.pepperiTheme = new ThemeData();

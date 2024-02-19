@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
-import { PepAddonService, PepHttpService, PepSessionService } from '@pepperi-addons/ngx-lib';
-import { Observable } from 'rxjs';
+import { PepAddonService, PepColorService, PepHttpService, PepSessionService } from '@pepperi-addons/ngx-lib';
+import { lastValueFrom, Observable } from 'rxjs';
 import { config } from '../addon.config';
 import { ThemesMergedData } from 'shared';
+import { HslColorData } from './plugin.model';
 
 @Injectable()
 export class PluginService {
@@ -23,6 +24,7 @@ export class PluginService {
     }
 
     constructor(
+        private colorService: PepColorService, 
         private addonService: PepAddonService, 
         private httpService: PepHttpService,
         private sessionService: PepSessionService
@@ -72,9 +74,16 @@ export class PluginService {
         // }
     }
 
-    getPepperiTheme(publishedObject: boolean): Observable<any> {
+    async getPepperiTheme(publishedObject: boolean): Promise<any> {
         const baseUrl = this.getBaseUrl();
-        return this.httpService.getHttpCall(`${baseUrl}/get_pepperi_theme?published=${publishedObject}`);
+        const pepperiTheme = await lastValueFrom(this.httpService.getHttpCall(`${baseUrl}/get_pepperi_theme?published=${publishedObject}`));
+
+        if (pepperiTheme?.userLegacyColor?.toString().indexOf('#') === 0) {
+            const hslColor = this.colorService.hex2hsl(pepperiTheme.userLegacyColor);
+            pepperiTheme.userLegacyColor = new HslColorData(hslColor.h, hslColor.s, hslColor.l);
+        }
+
+        return pepperiTheme;
     }
 
     getAddonsThemes(publishedObject: boolean): Observable<any> {
