@@ -1,9 +1,9 @@
-import MyService from './my.service';
+import { ThemesService } from './themes.service';
 import {Client, Request} from '@pepperi-addons/debug-server';
 
 export async function themes(client: Client, request: Request): Promise<any> {
     try {
-        const service = new MyService(client);
+        const service = new ThemesService(client);
         let res;
 
         if (request.method === 'POST') {
@@ -22,7 +22,7 @@ export async function themes(client: Client, request: Request): Promise<any> {
 
 export async function publish(client: Client, request: Request): Promise<any> {
     try {
-        const service = new MyService(client);
+        const service = new ThemesService(client);
         let res = service.publishAddonTheme(request.body, request.header);
         return res;
     } catch(err) {
@@ -32,7 +32,7 @@ export async function publish(client: Client, request: Request): Promise<any> {
 
 export async function themes_variables(client:Client, request: Request): Promise<any> {
     try {
-        const service = new MyService(client);
+        const service = new ThemesService(client);
         let res;
 
         if (request.method === 'POST') {

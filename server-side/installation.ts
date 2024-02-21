@@ -1,11 +1,14 @@
-import MyService from './my.service';
+import { ThemesService }  from './themes.service';
 import {Client, Request} from '@pepperi-addons/debug-server';
+import { ThemesUpgradeService } from './themes-upgrade.service';
 
 export async function install(client: Client, request: Request) {
     try {
-        const service = new MyService(client)
+        const service = new ThemesService(client)
         await service.createRelationsAndInstallThemes();
-        await service.performMigration(request.body.FromVersion, request.body.ToVersion, false);
+
+        const upgradeService = new ThemesUpgradeService(client);
+        await upgradeService.performMigration(request.body.FromVersion, request.body.ToVersion, false);
     } catch (err) {
         throw new Error(`Failed to create ADAL Tables. error - ${err}`);
     }
@@ -19,9 +22,11 @@ export async function uninstall(client: Client, request: Request) {
 
 export async function upgrade(client: Client, request: Request) {
     try {
-        const service = new MyService(client)
+        const service = new ThemesService(client)
         await service.createRelationsAndInstallThemes();
-        await service.performMigration(request.body.FromVersion, request.body.ToVersion);
+
+        const upgradeService = new ThemesUpgradeService(client);
+        await upgradeService.performMigration(request.body.FromVersion, request.body.ToVersion);
 
     } catch (err) {
         throw new Error(`Failed to create ADAL Tables. error - ${err}`);

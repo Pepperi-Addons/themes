@@ -1,8 +1,10 @@
 import { IClient } from '@pepperi-addons/cpi-node/build/cpi-side/events';
+import { ConfigurationObject } from "@pepperi-addons/papi-sdk";
+import { THEME_TABS_DATA_PROPERTY, THEME_TABS_DATA_UUID } from 'shared';
 import config from "../addon.config.json";
 
-const CSS_VARIABLES_TABLE_NAME = 'CssVariables';
-const DATA_OBJECT_KEY = 'themes';
+// const CSS_VARIABLES_TABLE_NAME = 'CssVariables';
+// const DATA_OBJECT_KEY = 'themes';
 
 class ThemesService {
     
@@ -44,15 +46,20 @@ class ThemesService {
         const isSyncInstalled = await this.isSyncInstalled();
 
         if (isSyncInstalled) {
-            const cssVariablesData = await pepperi.api.adal.get({
-                addon: config.AddonUUID,
-                table: CSS_VARIABLES_TABLE_NAME,
-                key: DATA_OBJECT_KEY
-            });
+            // Old code
+            // const cssVariablesData = await pepperi.api.adal.get({
+            //     addon: config.AddonUUID,
+            //     table: CSS_VARIABLES_TABLE_NAME,
+            //     key: DATA_OBJECT_KEY
+            // });
             
-            if (cssVariablesData.object) {
-                result = (cssVariablesData.object) || {};
-            }
+            // if (cssVariablesData.object) {
+            //     result = (cssVariablesData.object) || {};
+            // }
+
+            // New code
+            const configurationObject: ConfigurationObject = await pepperi.addons.configurations.get(THEME_TABS_DATA_UUID);
+            result = configurationObject?.Data[THEME_TABS_DATA_PROPERTY] || {};
         } else {
             // Get the cssVariables data online if sync isn't installed.
             const temp = await pepperi.papiClient.apiCall("GET", `addons/api/${config.AddonUUID}/themes/get_published_theme?key=${key}`);

@@ -1,12 +1,12 @@
-import { PapiClient, InstalledAddon, Relation, AddonDataScheme, AddonData, NgComponentRelation, FormDataView, FindOptions } from '@pepperi-addons/papi-sdk';
+import { PapiClient, InstalledAddon, Relation, AddonDataScheme, AddonData, NgComponentRelation, FormDataView, FindOptions, Draft, SearchData, ConfigurationObject } from '@pepperi-addons/papi-sdk';
 import { Client } from '@pepperi-addons/debug-server';
-import { CSS_VARIABLES_TABLE_NAME, DATA_OBJECT_KEY, THEMES_TABLE_NAME, THEME_TABS_RELATION_NAME, ThemesMergedData, THEME_FONT_BODY_FIELD_ID } from 'shared';
-import semver from 'semver';
+import { CSS_VARIABLES_TABLE_NAME, DATA_OBJECT_KEY, THEMES_TABLE_NAME, THEME_TABS_RELATION_NAME, ThemesMergedData, THEME_FONT_BODY_FIELD_ID, THEME_TABS_DATA_PROPERTY, THEME_TABS_DATA_UUID } from 'shared';
+// import semver from 'semver';
 import jwt_decode from "jwt-decode";
 // const fs = require('fs');
 // const util = require('util');
 // import fs from 'fs';
-import fetch from 'node-fetch';
+// import fetch from 'node-fetch';
 
 export interface OldAddonData {
     unPublishedThemeObj: any;
@@ -17,7 +17,7 @@ export interface OldAddonData {
 
 export const THEMES_VARIABLES_TABLE_NAME = 'ThemesVariables';
 
-class MyService {
+export class ThemesService {
     papiClient: PapiClient;
     addonUUID: string;
     themesBlockName = 'Plugin';
@@ -53,10 +53,25 @@ class MyService {
             Type: 'data'
         });
 
-        // Create css variables table
-        const createCssVarsTable = await this.papiClient.addons.data.schemes.post({
-            Name: CSS_VARIABLES_TABLE_NAME,
-            Type: 'data',
+        // // Create css variables table
+        // const createCssVarsTable = await this.papiClient.addons.data.schemes.post({
+        //     Name: CSS_VARIABLES_TABLE_NAME,
+        //     Type: 'data',
+        //     SyncData: {
+        //         Sync: true
+        //     }
+        // });
+        const fields = {};
+        fields[THEME_TABS_DATA_PROPERTY] = {
+            Type: "Object",
+        };
+        
+        // The input type is defined inside the papi sdk package, and called ConfigurationScheme
+        const createThemesConfigurationTable = await this.papiClient.addons.configurations.schemes.upsert({
+            Name: THEMES_TABLE_NAME, //the name of the configuration scheme
+            AddonUUID: this.addonUUID, //the addonUUID of the addon that own this configuration
+            //the interface of the configurations object
+            Fields: fields,
             SyncData: {
                 Sync: true
             }
@@ -77,71 +92,71 @@ class MyService {
         });
 
         promises.push(createThemesTable);
-        promises.push(createCssVarsTable);
+        promises.push(createThemesConfigurationTable);
         promises.push(createThemesVariablesTable);
         return Promise.all(promises);
     }
 
-    private async upsertThemeDataMigration() {
-        const themesObjects = await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).find();
-        const cssVars = await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).find();
+    // private async upsertThemeDataMigration() {
+    //     const themesObjects = await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).find();
+    //     const cssVars = await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).find();
 
-        if (themesObjects.length === 0 && cssVars.length === 0) {
-            const themesAdditionalData: OldAddonData | null = await this.getThemesAdditionalDataFromInstalledAddon();
+    //     if (themesObjects.length === 0 && cssVars.length === 0) {
+    //         const themesAdditionalData: OldAddonData | null = await this.getThemesAdditionalDataFromInstalledAddon();
 
-            if (themesAdditionalData != null) {
-                // Insert the css variables.
-                const cssVariablesData = {
-                    Key: DATA_OBJECT_KEY,
-                    cssVariables: themesAdditionalData.webappVariables
-                };
+    //         if (themesAdditionalData != null) {
+    //             // Insert the css variables.
+    //             const cssVariablesData = {
+    //                 Key: DATA_OBJECT_KEY,
+    //                 cssVariables: themesAdditionalData.webappVariables
+    //             };
 
-                await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(cssVariablesData)
+    //             await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(cssVariablesData)
 
-                // Insert the themes published and unpublished.
-                const otherData = {
-                    Key: DATA_OBJECT_KEY,
-                    unPublishedThemeObj: themesAdditionalData.unPublishedThemeObj,
-                    publishedThemeObj: themesAdditionalData.publishedThemeObj,
-                    publishComment: '',
-                };
-                await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(otherData);
-            }
-        }
+    //             // Insert the themes published and unpublished.
+    //             const otherData = {
+    //                 Key: DATA_OBJECT_KEY,
+    //                 unPublishedThemeObj: themesAdditionalData.unPublishedThemeObj,
+    //                 publishedThemeObj: themesAdditionalData.publishedThemeObj,
+    //                 publishComment: '',
+    //             };
+    //             await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(otherData);
+    //         }
+    //     }
 
-    }
+    // }
 
-    private async installTheme(): Promise<any> {
-        let result: any = {};
-        const systemData = {
-            Editors: [
-                {
-                    ParentPackageName: 'Themes',
-                    PackageName: 'themes',
-                    Description: 'Theme editor',
-                },
-            ],
-        };
+    // private async installTheme(): Promise<any> {
+    //     let result: any = {};
+    //     const systemData = {
+    //         Editors: [
+    //             {
+    //                 ParentPackageName: 'Themes',
+    //                 PackageName: 'themes',
+    //                 Description: 'Theme editor',
+    //             },
+    //         ],
+    //     };
 
-        const body:InstalledAddon = {
-            Addon: {UUID: this.client.AddonUUID},
-            SystemData: JSON.stringify(systemData),
-            PublicBaseURL: ""
-        };
+    //     const body:InstalledAddon = {
+    //         Addon: {UUID: this.client.AddonUUID},
+    //         SystemData: JSON.stringify(systemData),
+    //         PublicBaseURL: ""
+    //     };
   
         
-        try {
-            const tmpResult: any = await this.papiClient.addons.installedAddons.upsert(body);
-            result['success'] = tmpResult.Status;
-            result['resultObject'] = {};
-        } catch (error) {
-            // result['success'] = false;
-            // result['errorMessage'] = error.message;
-            // result['resultObject'] = null;
-        }
+    //     try {
+    //         const tmpResult: any = await this.papiClient.addons.installedAddons.upsert(body);
+    //         result['success'] = tmpResult.Status;
+    //         result['resultObject'] = {};
+    //     } catch (error) {
+    //         // result['success'] = false;
+    //         // result['errorMessage'] = error.message;
+    //         // result['resultObject'] = null;
+    //     }
 
-        return result;
-    }
+    //     return result;
+    // }
 
     private async upsertSettingsRelation() {
         const addonBlockRelation: Relation = {
@@ -167,14 +182,56 @@ class MyService {
         return await this.papiClient.post('/addons/data/relations', relation);
     }
 
-    private async getThemeData(key: string) {
+    protected async getThemeData(key: string) {
         const themesData = await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).key(key).get();
         return themesData;
     }
 
-    private async getPublishedThemesData(key: string) {
-        const publishedThemesData = await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).key(key).get();
-        return publishedThemesData;
+    protected async getPublishedThemesData() {
+        // Old code
+        // const publishedThemesData = await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).key(key).get();
+        // return publishedThemesData;
+
+        // New code
+        const configurationObjects: SearchData<ConfigurationObject> = await this.papiClient.addons.configurations.search({
+            Where: `Key like '${THEME_TABS_DATA_UUID}%'`
+        });
+
+        return configurationObjects.Objects.length > 0 ? configurationObjects.Objects[0].Data[THEME_TABS_DATA_PROPERTY] : undefined;
+    }
+
+    protected async publishCssVariablesInternal(themePublishedObj): Promise<any> {
+        if (!themePublishedObj) {
+            return Promise.reject(null);
+        }
+        
+        const draft = this.convertThemeToDraft(themePublishedObj);
+        // Save it
+        const res = await this.papiClient.addons.configurations.addonUUID(this.addonUUID).scheme(THEMES_TABLE_NAME).drafts.upsert(draft);
+        // Publish it
+        await this.papiClient.addons.configurations.addonUUID(this.addonUUID).scheme(THEMES_TABLE_NAME).drafts.key(THEME_TABS_DATA_UUID).publish();
+        
+        return res;
+    }
+
+    protected convertThemeToDraft(theme: any): Draft {
+        // Unstructured data (Key, Name, Description, Hidden, CreationDateTime, ModificationDateTime, ExpirationDateTime should not be in theme anymore).
+        const { Key, Name, Description, Hidden, CreationDateTime, ModificationDateTime, ExpirationDateTime, ...rest } = theme;
+
+        const data = {}
+        data[THEME_TABS_DATA_PROPERTY] = rest;
+
+        const draft: Draft = {
+            Key: THEME_TABS_DATA_UUID,
+            ConfigurationSchemaName: THEMES_TABLE_NAME,
+            AddonUUID: this.addonUUID,
+            Profiles: [],
+            Data: data,
+            Name: Name || '',
+            Description: Description || '',
+        };
+
+        return draft;
     }
 
     private async getThemesAdditionalDataFromInstalledAddon(): Promise<OldAddonData | null> {
@@ -218,11 +275,11 @@ class MyService {
 
             let themePublishedObj;
             try {
-                themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
+                themePublishedObj = await this.getPublishedThemesData();
             } catch {
                 if (!themePublishedObj) {
                     themePublishedObj = {
-                        Key: DATA_OBJECT_KEY,
+                        Key: THEME_TABS_DATA_UUID,
                     }
                 }
             }
@@ -231,7 +288,11 @@ class MyService {
             themePublishedObj['cssVariables'] = mergedData.cssVariables;
             themePublishedObj['branding'] = mergedData.branding;
             themePublishedObj['header'] = mergedData.header;
-            await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
+
+            // Old code
+            // await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
+            // New code
+            await this.publishCssVariablesInternal(themePublishedObj);
 
             // Prepare the result.
             res = themePublishedObj;
@@ -267,7 +328,7 @@ class MyService {
         let themePublishedObj;
 
         if (addonsThemes.length > 0) {
-            themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
+            themePublishedObj = await this.getPublishedThemesData();
     
             for (let index = 0; index < addonsThemes.length; index++) {
                 const addonThemeObj = addonsThemes[index];
@@ -293,7 +354,10 @@ class MyService {
                 }
             }
             
-            await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
+            // Old code
+            // await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
+            // New code
+            await this.publishCssVariablesInternal(themePublishedObj);
         }
 
         return themePublishedObj;
@@ -462,26 +526,27 @@ class MyService {
     }
 
     async createRelationsAndInstallThemes() {
-        await this.installTheme();
+        // await this.installTheme();
+        await this.createThemesTablesSchemes();
         await this.upsertSettingsRelation();
         await this.upsertVarSettingsRelation();
-        await this.createThemesTablesSchemes();
 
-        await this.upsertThemeDataMigration();
+        // Old migration.
+        // await this.upsertThemeDataMigration();
     }
 
     async getCssVariablesResultObject(query: any) {
         let result = {};
         result['success'] = true;
         
-        const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
+        const themePublishedObj = await this.getPublishedThemesData();
         result['resultObject'] = themePublishedObj?.cssVariables || {};
         
         return result;
     }
     
     async getPublishedThemeObject(query: any) {
-        const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
+        const themePublishedObj = await this.getPublishedThemesData();
         return themePublishedObj;
     }
     
@@ -594,207 +659,6 @@ class MyService {
         return res;
     }
 
-    /***********************************************************************************************/
-    /*                                  Migration functions
-    /***********************************************************************************************/
-
-    private arrayBufferToBase64(buffer) {
-        var binary = '';
-        var bytes = [].slice.call(new Uint8Array(buffer));
-
-        bytes.forEach((b) => binary += String.fromCharCode(b));
-
-        return btoa(binary);
-    };
-
-    private async getLogoAsset() {
-        try {
-            // Download old logo
-            const url = `${this.wacdbaseurl}/wrntyimages/distributors/${this.distId}.jpg`; // test some logo - 'https://cpapi.pepperi.com/wrntyimages/distributors/117779723.jpg';
-            let response = await fetch(url);
-            const base64Prefix = 'data:image/jpeg;base64,';
-            let buffer;
-
-            if (response?.status === 200) {
-                buffer = await response.arrayBuffer();
-            } else {
-                // Take default logo if something is wrong.
-                // const data = await fs.promises.readFile('images/logo.png');
-                // buffer = Buffer.from(data);
-                response = await fetch(`https://webapp.pepperi.com/V17_16/WebApp_124/assets/images/Pepperi-Logo-HiRes.png`);
-                if (response?.status === 200) {
-                    buffer = await response.arrayBuffer();
-                }
-            }
-            
-            const base64String = this.arrayBufferToBase64(buffer);
-
-            let body = {
-                Key: "logo.jpg", 
-                Description: "logo",
-                MIME: "image/jpeg",
-                Sync: "Device",
-                URI: base64Prefix + base64String
-            }
-
-            // Upload it to the assets.
-            const assetsAddonUUID = 'ad909780-0c23-401e-8e8e-f514cc4f6aa2';
-            const asset: any = await this.papiClient.addons.api.uuid(assetsAddonUUID).file('api').func('upsert_asset').post('', body);
-            return asset ? { key: asset.Key, url: asset.URL } : null;
-        } catch (err) {
-            // Do nothing
-            console.error(`Error in getLogoAsset: ${err}`);
-        }
-
-        return null;
-    }
-
-    private async getFaviconAsset() {
-        try {
-            // Take default favicon.
-            const response = await fetch(`https://webapp.pepperi.com/favicon.ico`);
-            let buffer;
-            
-            if (response?.status === 200) {
-                buffer = await response.arrayBuffer();
-            }
-
-            // const data = await fs.promises.readFile('images/favicon.ico');
-            // const buffer = Buffer.from(data);
-            const base64Prefix = 'data:image/jpeg;base64,';
-            const base64String = this.arrayBufferToBase64(buffer);
-
-            let body = {
-                Key: "favicon.jpg", 
-                Description: "favicon",
-                MIME: "image/jpeg",
-                Sync: "Device",
-                URI: base64Prefix + base64String
-            }
-
-            // Upload it to the assets.
-            const assetsAddonUUID = 'ad909780-0c23-401e-8e8e-f514cc4f6aa2';
-            const asset: any = await this.papiClient.addons.api.uuid(assetsAddonUUID).file('api').func('upsert_asset').post('', body);
-            return asset ? { key: asset.Key, url: asset.URL } : null;
-        } catch (err) {
-            // Do nothing
-            console.error(`Error in getFaviconAsset: ${err}`);
-        }
-
-        return null;
-    }
-
-    private async copyOldFilesToNewLocation() {
-        console.log('copyOldFilesToNewLocation - enter');
-
-        try {
-            // Download old logo
-            const logoAsset = await this.getLogoAsset();
-            const faviconAsset = await this.getFaviconAsset();
-            
-            // Set the assets result in the branding object of the themes published and unpublished.
-            if (logoAsset && faviconAsset) {
-                const themeData = await this.getThemeData(DATA_OBJECT_KEY);
-                
-                themeData.unPublishedThemeObj['logoAsset'] = logoAsset;
-                themeData.unPublishedThemeObj['faviconAsset'] = faviconAsset;
-                
-                if (themeData.publishedThemeObj) {
-                    themeData.publishedThemeObj['logoAsset'] = logoAsset;
-                    themeData.publishedThemeObj['faviconAsset'] = faviconAsset;
-                    themeData.publishComment = 'Auto - Copy logo from old place to assets.';
-                }
-                
-                await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(themeData);
     
-                // Publish with the new branding object.
-                if (themeData.publishedThemeObj) {
-                    const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
-                    const branding: any = {
-                        logoAssetKey: logoAsset?.key || '',
-                        faviconAssetKey: faviconAsset?.key || '',
-                    };
-                    themePublishedObj['branding'] = branding;
-                    await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
-                }
-            }
-        } catch (err) {
-            console.error(`Error in copyOldFilesToNewLocation: ${err}`);
-            // Do nothing
-        }
-    }
-
-    private async copyLegacyColors() {
-        console.log('copyLegacyColors - enter');
-
-        try {
-            const themeData = await this.getThemeData(DATA_OBJECT_KEY);
-            const brandingUIControl = await this.papiClient.get(`/uicontrols?where=Type='Branding'`);
-            const uiControlData = brandingUIControl[0] ? JSON.parse(brandingUIControl[0].UIControlData) : null;
-
-            let userLegacyColor = uiControlData?.ControlFields.find(f => f.ApiName === 'BrandingMainColor')?.DefaultValue || '#3f673f';
-            let userLegacySecondaryColor = uiControlData?.ControlFields.find(f => f.ApiName === 'BrandingSecondaryColor')?.DefaultValue || '#ffff00';
-            
-            themeData.unPublishedThemeObj['userLegacyColor'] = userLegacyColor;
-            themeData.unPublishedThemeObj['userLegacySecondaryColor'] = userLegacySecondaryColor;
-            
-            if (themeData.publishedThemeObj) {
-                themeData.publishedThemeObj['userLegacyColor'] = userLegacyColor;
-                themeData.publishedThemeObj['userLegacySecondaryColor'] = userLegacySecondaryColor;
-                themeData.publishComment = 'Auto - Copy colors from UI control to theme.';
-            }
-            
-            await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(themeData);
-
-            // Publish with the new colors data.
-            if (themeData.publishedThemeObj) {
-                const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
-                const header = {
-                    useTopHeaderColorLegacy: themePublishedObj.useTopHeaderColorLegacy || themeData.publishedThemeObj.useTopHeaderColorLegacy,
-                    userLegacyColor: userLegacyColor,
-                    topHeaderColor: themePublishedObj.topHeaderColor || themeData.publishedThemeObj.topHeaderColor,
-                    topHeaderStyle: themePublishedObj.topHeaderStyle || themeData.publishedThemeObj.topHeaderStyle,
-                }
-                themePublishedObj['header'] = header;
-                
-                await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
-            }
-
-        } catch (err) {
-            console.error(`Error in copyLegacyColors: ${err}`);
-            // Do nothing
-        }
-    }
-
-    private async migrateToV2_0_23(fromVersion) {
-        // check if the upgrade is from versions before 2.0.23
-        // 2.0.23 is the version that uses the new files
-        console.log('semver comperation' + semver.lt(fromVersion, '2.0.23') + ' fromVersion: ' + fromVersion);
-        if (fromVersion && semver.lt(fromVersion, '2.0.23')) {
-            // Copy the files from the old location to the new one.
-            await this.copyOldFilesToNewLocation();
-        }
-    }
-
-    private async migrateToV2_1_12(fromVersion) {
-        // check if the upgrade is from versions before 2.1.12
-        // 2.1.12 is the version that uses the new files
-        // console.log('semver comperation' + semver.lt(fromVersion, '2.1.12') + ' fromVersion: ' + fromVersion);
-        if (fromVersion && semver.lt(fromVersion, '2.1.12')) {
-            // Copy the legacy colors from the UI control.
-            await this.copyLegacyColors();
-        }
-    }
-
-    // migrate from the old cpi node file approach the the new one
-    async performMigration(fromVersion, toVersion, upgrade = true) {
-        if (upgrade) {
-            await this.migrateToV2_0_23(fromVersion);
-        }
-
-        await this.migrateToV2_1_12(fromVersion);
-    }
 
 }
-
-export default MyService;
