@@ -405,7 +405,7 @@
                     </div>
                     <div class="assign-content">
                         <mat-accordion [displayMode]="'flat'" [multi]="true" class="pep-accordion">
-                            <mat-expansion-panel [expanded]="true">
+                            <!-- <mat-expansion-panel [expanded]="true">
                                 <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
                                     <mat-panel-title class="ellipsis body-md">
                                         {{ 'Themes_Addon_TopHeaderAssign_Title' | translate }}
@@ -433,8 +433,8 @@
                                         </div>
                                     </div>
                                 </div>
-                            </mat-expansion-panel>
-                            <mat-expansion-panel >
+                            </mat-expansion-panel> -->
+                            <mat-expansion-panel [expanded]="true">
                                 <mat-expansion-panel-header [collapsedHeight]="expansionPanelHeaderHeight" [expandedHeight]="expansionPanelHeaderHeight">
                                     <mat-panel-title class="ellipsis body-md">
                                         {{ 'Themes_Addon_WeakAssign_Title' | translate }}
