@@ -203,11 +203,11 @@ export class ThemesUpgradeService extends ThemesService {
     // migrate from the old cpi node file approach the the new one
     async performMigration(fromVersion, toVersion, upgrade = true) {
         // Copy old colors
-        // await this.migrateToV2_1_12(fromVersion);
+        await this.migrateToV2_1_12(fromVersion);
 
         if (upgrade) {
             // Copy old logo's
-            // await this.migrateToV2_0_23(fromVersion);
+            await this.migrateToV2_0_23(fromVersion);
 
             // Move to configurations.
             await this.migrateToV2_2_0(fromVersion);
