@@ -102,34 +102,42 @@ export class ThemesUpgradeService extends ThemesService {
         console.log('copyOldFilesToNewLocation - enter');
 
         try {
-            // Download old logo
-            const logoAsset = await this.getLogoAsset();
-            const faviconAsset = await this.getFaviconAsset();
+            const themeData = await this.getThemeData(DATA_OBJECT_KEY);
             
-            // Set the assets result in the branding object of the themes published and unpublished.
-            if (logoAsset && faviconAsset) {
-                const themeData = await this.getThemeData(DATA_OBJECT_KEY);
+            if (!themeData.unPublishedThemeObj) {
+                themeData.unPublishedThemeObj = {};
+            }
+
+            // If the logo and favicon are not set, set them.
+            if ((!themeData.unPublishedThemeObj['logoAsset']) && 
+                (!themeData.unPublishedThemeObj['faviconAsset'])) {
+
+                // Download old logo
+                const logoAsset = await this.getLogoAsset();
+                const faviconAsset = await this.getFaviconAsset();
                 
-                themeData.unPublishedThemeObj['logoAsset'] = logoAsset;
-                themeData.unPublishedThemeObj['faviconAsset'] = faviconAsset;
-                
-                if (themeData.publishedThemeObj) {
-                    themeData.publishedThemeObj['logoAsset'] = logoAsset;
-                    themeData.publishedThemeObj['faviconAsset'] = faviconAsset;
-                    themeData.publishComment = 'Auto - Copy logo from old place to assets.';
-                }
-                
-                await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(themeData);
-    
-                // Publish with the new branding object.
-                if (themeData.publishedThemeObj) {
-                    const themePublishedObj = await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).key(DATA_OBJECT_KEY).get();
+                // Set the assets result in the branding object of the themes published and unpublished.
+                if (logoAsset && faviconAsset) {
+                        
+                    themeData.unPublishedThemeObj['logoAsset'] = logoAsset;
+                    themeData.unPublishedThemeObj['faviconAsset'] = faviconAsset;
+                    
+                    if (themeData.publishedThemeObj) {
+                        themeData.publishedThemeObj['logoAsset'] = logoAsset;
+                        themeData.publishedThemeObj['faviconAsset'] = faviconAsset;
+                        themeData.publishComment = 'Auto - Copy logo from old place to assets.';
+                    }
+                    
+                    await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(themeData);
+        
+                    // Publish with the new branding object.
+                    const themePublishedObj = await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).key(DATA_OBJECT_KEY).get() || {};
                     const branding: any = {
                         logoAssetKey: logoAsset?.key || '',
                         faviconAssetKey: faviconAsset?.key || '',
                     };
                     themePublishedObj['branding'] = branding;
-                    await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
+                    await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj);
                 }
             }
         } catch (err) {
@@ -149,6 +157,10 @@ export class ThemesUpgradeService extends ThemesService {
             let userLegacyColor = uiControlData?.ControlFields.find(f => f.ApiName === 'BrandingMainColor')?.DefaultValue || '#3f673f';
             let userLegacySecondaryColor = uiControlData?.ControlFields.find(f => f.ApiName === 'BrandingSecondaryColor')?.DefaultValue || '#ffff00';
             
+            if (!themeData.unPublishedThemeObj) {
+                themeData.unPublishedThemeObj = {};
+            }
+
             themeData.unPublishedThemeObj['userLegacyColor'] = userLegacyColor;
             themeData.unPublishedThemeObj['userLegacySecondaryColor'] = userLegacySecondaryColor;
             
@@ -161,40 +173,40 @@ export class ThemesUpgradeService extends ThemesService {
             await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(themeData);
 
             // Publish with the new colors data.
-            if (themeData.publishedThemeObj) {
-                const themePublishedObj = await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).key(DATA_OBJECT_KEY).get();
-                const header = {
-                    useTopHeaderColorLegacy: themePublishedObj.useTopHeaderColorLegacy || themeData.publishedThemeObj.useTopHeaderColorLegacy,
-                    userLegacyColor: userLegacyColor,
-                    topHeaderColor: themePublishedObj.topHeaderColor || themeData.publishedThemeObj.topHeaderColor,
-                    topHeaderStyle: themePublishedObj.topHeaderStyle || themeData.publishedThemeObj.topHeaderStyle,
-                }
-                themePublishedObj['header'] = header;
-                
-                await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
+            const themePublishedObj = await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).key(DATA_OBJECT_KEY).get() || {};
+            const header = {
+                useTopHeaderColorLegacy: themePublishedObj.useTopHeaderColorLegacy || themeData.publishedThemeObj.useTopHeaderColorLegacy,
+                userLegacyColor: userLegacyColor,
+                topHeaderColor: themePublishedObj.topHeaderColor || themeData.publishedThemeObj?.topHeaderColor,
+                topHeaderStyle: themePublishedObj.topHeaderStyle || themeData.publishedThemeObj?.topHeaderStyle,
             }
-
+            themePublishedObj['header'] = header;
+            
+            await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj);
         } catch (err) {
             console.error(`Error in copyLegacyColors: ${err}`);
             // Do nothing
         }
     }
 
-    private async migrateToV2_0_23(fromVersion) {
-        // check if the upgrade is from versions before 2.0.23
-        // 2.0.23 is the version that uses the new files
-        console.log('semver comperation' + semver.lt(fromVersion, '2.0.23') + ' fromVersion: ' + fromVersion);
-        if (fromVersion && semver.lt(fromVersion, '2.0.23')) {
+    // private async migrateToV2_0_23(fromVersion) {
+    //     // check if the upgrade is from versions before 2.0.23
+    //     // 2.0.23 is the version that uses the new files
+    //     console.log('semver comperation' + semver.lt(fromVersion, '2.0.23') + ' fromVersion: ' + fromVersion);
+    //     if (fromVersion && semver.lt(fromVersion, '2.0.23')) {
+    //         // Copy the files from the old location to the new one.
+    //         await this.copyOldFilesToNewLocation();
+    //     }
+    // }
+
+    private async migrateToV2_1_13(fromVersion) {
+        // check if the upgrade is from versions before 2.1.13
+        // 2.1.13 is the version that uses the new files
+        // console.log('semver comperation' + semver.lt(fromVersion, '2.1.13') + ' fromVersion: ' + fromVersion);
+        if (fromVersion && semver.lt(fromVersion, '2.1.13')) {
             // Copy the files from the old location to the new one.
             await this.copyOldFilesToNewLocation();
-        }
-    }
 
-    private async migrateToV2_1_12(fromVersion) {
-        // check if the upgrade is from versions before 2.1.12
-        // 2.1.12 is the version that uses the new files
-        // console.log('semver comperation' + semver.lt(fromVersion, '2.1.12') + ' fromVersion: ' + fromVersion);
-        if (fromVersion && semver.lt(fromVersion, '2.1.12')) {
             // Copy the legacy colors from the UI control.
             await this.copyLegacyColors();
         }
@@ -203,11 +215,11 @@ export class ThemesUpgradeService extends ThemesService {
     // migrate from the old cpi node file approach the the new one
     async performMigration(fromVersion, toVersion, upgrade = true) {
         // Copy old colors
-        await this.migrateToV2_1_12(fromVersion);
+        await this.migrateToV2_1_13(fromVersion);
 
         if (upgrade) {
-            // Copy old logo's
-            await this.migrateToV2_0_23(fromVersion);
+            // // Copy old logo's
+            // await this.migrateToV2_0_23(fromVersion);
 
             // Move to configurations.
             await this.migrateToV2_2_0(fromVersion);
