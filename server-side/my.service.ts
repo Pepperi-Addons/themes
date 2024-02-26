@@ -696,6 +696,10 @@ class MyService {
             if (logoAsset && faviconAsset) {
                 const themeData = await this.getThemeData(DATA_OBJECT_KEY);
                 
+                if (!themeData.unPublishedThemeObj) {
+                    themeData.unPublishedThemeObj = {};
+                }
+
                 themeData.unPublishedThemeObj['logoAsset'] = logoAsset;
                 themeData.unPublishedThemeObj['faviconAsset'] = faviconAsset;
                 
@@ -708,15 +712,13 @@ class MyService {
                 await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(themeData);
     
                 // Publish with the new branding object.
-                if (themeData.publishedThemeObj) {
-                    const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
-                    const branding: any = {
-                        logoAssetKey: logoAsset?.key || '',
-                        faviconAssetKey: faviconAsset?.key || '',
-                    };
-                    themePublishedObj['branding'] = branding;
-                    await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
-                }
+                const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY) || {};
+                const branding: any = {
+                    logoAssetKey: logoAsset?.key || '',
+                    faviconAssetKey: faviconAsset?.key || '',
+                };
+                themePublishedObj['branding'] = branding;
+                await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
             }
         } catch (err) {
             console.error(`Error in copyOldFilesToNewLocation: ${err}`);
@@ -735,6 +737,10 @@ class MyService {
             let userLegacyColor = uiControlData?.ControlFields.find(f => f.ApiName === 'BrandingMainColor')?.DefaultValue || '#3f673f';
             let userLegacySecondaryColor = uiControlData?.ControlFields.find(f => f.ApiName === 'BrandingSecondaryColor')?.DefaultValue || '#ffff00';
             
+            if (!themeData.unPublishedThemeObj) {
+                themeData.unPublishedThemeObj = {};
+            }
+
             themeData.unPublishedThemeObj['userLegacyColor'] = userLegacyColor;
             themeData.unPublishedThemeObj['userLegacySecondaryColor'] = userLegacySecondaryColor;
             
@@ -747,19 +753,16 @@ class MyService {
             await this.papiClient.addons.data.uuid(this.addonUUID).table(THEMES_TABLE_NAME).upsert(themeData);
 
             // Publish with the new colors data.
-            if (themeData.publishedThemeObj) {
-                const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
-                const header = {
-                    useTopHeaderColorLegacy: themePublishedObj.useTopHeaderColorLegacy || themeData.publishedThemeObj.useTopHeaderColorLegacy,
-                    userLegacyColor: userLegacyColor,
-                    topHeaderColor: themePublishedObj.topHeaderColor || themeData.publishedThemeObj.topHeaderColor,
-                    topHeaderStyle: themePublishedObj.topHeaderStyle || themeData.publishedThemeObj.topHeaderStyle,
-                }
-                themePublishedObj['header'] = header;
-                
-                await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj)
+            const themePublishedObj = await this.getPublishedThemesData(DATA_OBJECT_KEY);
+            const header = {
+                useTopHeaderColorLegacy: themePublishedObj.useTopHeaderColorLegacy || themeData.publishedThemeObj?.useTopHeaderColorLegacy,
+                userLegacyColor: userLegacyColor,
+                topHeaderColor: themePublishedObj.topHeaderColor || themeData.publishedThemeObj?.topHeaderColor,
+                topHeaderStyle: themePublishedObj.topHeaderStyle || themeData.publishedThemeObj?.topHeaderStyle,
             }
-
+            themePublishedObj['header'] = header;
+            
+            await this.papiClient.addons.data.uuid(this.addonUUID).table(CSS_VARIABLES_TABLE_NAME).upsert(themePublishedObj);
         } catch (err) {
             console.error(`Error in copyLegacyColors: ${err}`);
             // Do nothing
