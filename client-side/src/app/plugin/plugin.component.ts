@@ -366,9 +366,11 @@ export class PluginComponent implements OnInit, OnDestroy {
     }
 
     convertColorToWebappVariables(themeVariables, colorKey, colorObj: HslColorData) {
-        themeVariables[colorKey + '-h'] = colorObj.hue;
-        themeVariables[colorKey + '-s'] = colorObj.saturation;
-        themeVariables[colorKey + '-l'] = colorObj.lightness;
+        if (colorObj) {
+            themeVariables[colorKey + '-h'] = colorObj.hue;
+            themeVariables[colorKey + '-s'] = colorObj.saturation;
+            themeVariables[colorKey + '-l'] = colorObj.lightness;
+        }
     }
 
     convertFontsToWebappVariables(themeObj, themeVariables) {
@@ -622,8 +624,9 @@ export class PluginComponent implements OnInit, OnDestroy {
         // Get pepperi theme
         this.pepperiTheme = await this.pluginService.getPepperiTheme(publishedObject);
 
-        if (!this.pepperiTheme) {
-            this.pepperiTheme = new ThemeData();
+        if (!this.pepperiTheme || this.pepperiTheme.userPrimaryColor === undefined) {
+            const newTheme = new ThemeData();
+            this.pepperiTheme = { ...newTheme, ...this.pepperiTheme};
         }
 
         // Set the default values for the logo's if needed.
