@@ -18,7 +18,7 @@
     </ng-container>
     <ng-container pep-main-area>
         <div id="pluginBody" class="limit-max-width">
-            <mat-tab-group (selectedTabChange)="tabClick($event)">
+            <mat-tab-group *ngIf="isLoaded" (selectedTabChange)="tabClick($event)">
                 <mat-tab>
                     <ng-template mat-tab-label>
                         <span class="body-md">{{ 'Themes_Addon_Colors_Title' | translate }}</span>

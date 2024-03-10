@@ -96,12 +96,13 @@ export class PluginComponent implements OnInit, OnDestroy {
     @Output() addEditors: EventEmitter<any> = new EventEmitter<any>();
     @Output() notify: EventEmitter<any> = new EventEmitter<any>();
 
-
     assetsHostObject = {
         selectionType: 'single',
         allowedAssetsTypes: 'images',
         inDialog: true
     }
+
+    isLoaded = false;
 
     constructor(
         private pluginService: PluginService,
@@ -204,6 +205,7 @@ export class PluginComponent implements OnInit, OnDestroy {
                 this.initOptions();
                 this.loadMenu();
                 await this.loadPepperiThemeObject(false);
+                this.isLoaded = true;
                 await this.loadTabsThemeData(false);
                 await this.loadThemeVariables();
             }
